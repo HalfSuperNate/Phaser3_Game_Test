@@ -44,35 +44,22 @@ export default class TestScene extends Scene {
         };
 
         this.gridEngine.create(map, gridEngineConfig);
-        this.gridEngine.movementStarted().subscribe(({ direction }) => {
+        this.gridEngine.movementStarted().subscribe(({ direction }: { direction: string }) => {
             heroSprite.anims.play(direction);
         });
     
-        this.gridEngine.movementStopped().subscribe(({ direction }) => {
+        this.gridEngine.movementStopped().subscribe(({ direction }: { direction: string }) => {
             heroSprite.anims.play(`idle_${direction}`);
             heroSprite.anims.stop();
             
         });
     
-        this.gridEngine.directionChanged().subscribe(({ direction }) => {
+        this.gridEngine.directionChanged().subscribe(({ direction }: { direction: string }) => {
             heroSprite.anims.play(`idle_${direction}`);
         });
     }
 
-    // ***
-    createHeroWalkingAnimation(direction: string) {
-        this.anims.create({
-            key: direction,
-            frames: [
-                { key: 'hero', frame: `${direction}_01` },
-                { key: 'hero', frame: `${direction}_02` }
-            ],
-            frameRate: 4,
-            repeat: -1,
-            yoyo: true,
-        });
-    }
-
+    // *** Create Anims
     createPlayerAnimation(
         name: string,
         startFrame: number,
