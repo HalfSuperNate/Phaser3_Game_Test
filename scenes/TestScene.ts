@@ -48,14 +48,6 @@ export default class TestScene extends Scene {
 
         this.gridEngine.create(map, gridEngineConfig);
 
-        // Timer for random movement
-        this.time.addEvent({
-            delay: 1000, // Check every second
-            callback: this.handleRandomMovement,
-            callbackScope: this,
-            loop: true
-        });
-
         this.gridEngine.movementStarted().subscribe(({ direction }: { direction: string }) => {
             //this.lastKeyPressTime = Date.now(); // Update the last key press time
             heroSprite.anims.play(direction);
