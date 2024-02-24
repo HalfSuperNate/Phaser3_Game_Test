@@ -11,7 +11,10 @@
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.0.0",
     "@tanstack/react-query": "^5.18.1",
+    "ethers": "^6.11.1",
+    "grid-engine": "^2.44.0",
     "next": "^14.0.4",
+    "phaser": "^3.70.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "viem": "^2.7.3",

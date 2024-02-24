@@ -16,8 +16,8 @@ import {
 import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 
 const config = getDefaultConfig({
-  appName: 'RainbowKit App',
-  projectId: 'YOUR_PROJECT_ID',
+  appName: 'Burn It Dao',
+  projectId: 'fd889c26f6862c2b3d8264d5aa6a51af',
   chains: [
     mainnet,
     polygon,
