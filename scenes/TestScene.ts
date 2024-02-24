@@ -2,6 +2,7 @@ import Phaser, { Input, Scene } from 'phaser';
 
 export default class TestScene extends Scene {
     private gridEngine!: any;
+    private lastKeyPressTime: number = 0; // Track the time of the last key press
 
     constructor() {
         super('testscene');
@@ -12,6 +13,8 @@ export default class TestScene extends Scene {
     }
 
     create() {
+        // Set up flag to track initialization status
+        let isGridEngineInitialized = false;
         const map = this.make.tilemap({ key: 'testmap' });
         map.addTilesetImage('ZeldaLike', 'tiles');
         map.layers.forEach((layer, index) => {
@@ -44,7 +47,17 @@ export default class TestScene extends Scene {
         };
 
         this.gridEngine.create(map, gridEngineConfig);
+
+        // Timer for random movement
+        this.time.addEvent({
+            delay: 1000, // Check every second
+            callback: this.handleRandomMovement,
+            callbackScope: this,
+            loop: true
+        });
+
         this.gridEngine.movementStarted().subscribe(({ direction }: { direction: string }) => {
+            //this.lastKeyPressTime = Date.now(); // Update the last key press time
             heroSprite.anims.play(direction);
         });
     
@@ -57,6 +70,33 @@ export default class TestScene extends Scene {
         this.gridEngine.directionChanged().subscribe(({ direction }: { direction: string }) => {
             heroSprite.anims.play(`idle_${direction}`);
         });
+
+        // Function to handle random movement
+        const handleRandomMovement = () => {
+            if (!isGridEngineInitialized) return; // Exit if gridEngine is not initialized
+
+            const currentTime = Date.now();
+            if (currentTime - this.lastKeyPressTime >= 10000) {
+                const randomDirection = this.getRandomDirection();
+                if(randomDirection === 'null') {
+                    this.lastKeyPressTime = Date.now();
+                    return;
+                }
+                heroSprite.anims.play(randomDirection);
+                this.gridEngine.move('hero', randomDirection);
+            }
+        };
+
+        // Timer for random movement
+        this.time.addEvent({
+            delay: 1000, // Check every second
+            callback: handleRandomMovement,
+            callbackScope: this,
+            loop: true
+        });
+
+        // Update initialization flag after gridEngine is initialized
+        isGridEngineInitialized = true;
     }
 
     // *** Create Anims
@@ -64,7 +104,7 @@ export default class TestScene extends Scene {
         name: string,
         startFrame: number,
         endFrame: number,
-      ) {
+    ) {
         this.anims.create({
           key: name,
           frames: this.anims.generateFrameNumbers("hero", {
@@ -75,19 +115,32 @@ export default class TestScene extends Scene {
           repeat: -1,
           yoyo: true,
         });
-      }
+    }
     // ***
 
     update() {
         const cursors = this.input.keyboard?.createCursorKeys();
-        if (cursors?.left.isDown) {
-            this.gridEngine.move('hero', 'left');
-        } else if (cursors?.right.isDown) {
-            this.gridEngine.move('hero', 'right');
-        } else if (cursors?.up.isDown) {
-            this.gridEngine.move('hero', 'up');
-        } else if (cursors?.down.isDown) {
-            this.gridEngine.move('hero', 'down');
+        if (cursors) {
+            if (cursors.left.isDown) {
+                this.gridEngine.move('hero', 'left');
+                this.lastKeyPressTime = Date.now(); // Update the last key press time
+            } else if (cursors.right.isDown) {
+                this.gridEngine.move('hero', 'right');
+                this.lastKeyPressTime = Date.now(); // Update the last key press time
+            } else if (cursors.up.isDown) {
+                this.gridEngine.move('hero', 'up');
+                this.lastKeyPressTime = Date.now(); // Update the last key press time
+            } else if (cursors.down.isDown) {
+                this.gridEngine.move('hero', 'down');
+                this.lastKeyPressTime = Date.now(); // Update the last key press time
+            }
         }
+    }
+
+    // Random direction generator
+    private getRandomDirection() {
+        const directions = ['up', 'down', 'left', 'right', 'null'];
+        const randomIndex = Phaser.Math.Between(0, directions.length - 1);
+        return directions[randomIndex];
     }
 }
