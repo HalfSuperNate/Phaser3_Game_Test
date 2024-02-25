@@ -1,3 +1,4 @@
+import { getRandomValues, randomInt } from 'crypto';
 import Phaser, { Input, Scene } from 'phaser';
 
 export default class TestScene extends Scene {
@@ -58,14 +59,14 @@ export default class TestScene extends Scene {
                     id: 'npc0',
                     sprite: npcSprite,
                     startPosition: { x: 10, y: 8 },
-                    speed: 2,
+                    speed: 1.5,
                 }
             ]
         };
 
         this.gridEngine.create(map, gridEngineConfig);
 
-        this.gridEngine.moveRandomly('npc0');
+        this.gridEngine.moveRandomly('npc0', 1500);
 
         this.gridEngine.movementStarted().subscribe(({ charId, direction }: { charId: string, direction: string }) => {
             //this.lastKeyPressTime = Date.now(); // Update the last key press time
@@ -76,7 +77,6 @@ export default class TestScene extends Scene {
                     npcSprite.anims.play(`npc_${direction}`);
                     return;
                 }
-
             }
             
         });
@@ -86,7 +86,11 @@ export default class TestScene extends Scene {
                 heroSprite.anims.play(`hero_idle_${direction}`);
                 heroSprite.anims.stop();
             } else {
-                
+                if (charId.includes('npc')){
+                    npcSprite.anims.play(`npc_idle_${direction}`);
+                    npcSprite.anims.stop();
+                    return;
+                }
             }
         });
     
@@ -94,7 +98,10 @@ export default class TestScene extends Scene {
             if (charId === 'hero') {
                 heroSprite.anims.play(`hero_idle_${direction}`);
             } else {
-                
+                if (charId.includes('npc')){
+                    npcSprite.anims.play(`npc_idle_${direction}`);
+                    return;
+                }
             }
         });
 
