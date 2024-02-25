@@ -22,15 +22,26 @@ export default class TestScene extends Scene {
         });
 
         const heroSprite = this.physics.add.sprite(0, 0, 'hero', 1);
+        const npcSprite = this.physics.add.sprite(0, 0, 'npc', 1);
         // *** Character Animations
-        this.createPlayerAnimation('up',30,32);
-        this.createPlayerAnimation('right',16,18);
-        this.createPlayerAnimation('down',2,4);
-        this.createPlayerAnimation('left',44,46);
-        this.createPlayerAnimation('idle_up',29,29);
-        this.createPlayerAnimation('idle_right',15,15);
-        this.createPlayerAnimation('idle_down',1,1);
-        this.createPlayerAnimation('idle_left',43,43);
+        // hero
+        this.createPlayerAnimation('hero','up',30,32);
+        this.createPlayerAnimation('hero','right',16,18);
+        this.createPlayerAnimation('hero','down',2,4);
+        this.createPlayerAnimation('hero','left',44,46);
+        this.createPlayerAnimation('hero','idle_up',29,29);
+        this.createPlayerAnimation('hero','idle_right',15,15);
+        this.createPlayerAnimation('hero','idle_down',1,1);
+        this.createPlayerAnimation('hero','idle_left',43,43);
+        //npc
+        this.createPlayerAnimation('npc','up',30,32);
+        this.createPlayerAnimation('npc','right',16,18);
+        this.createPlayerAnimation('npc','down',2,4);
+        this.createPlayerAnimation('npc','left',44,46);
+        this.createPlayerAnimation('npc','idle_up',29,29);
+        this.createPlayerAnimation('npc','idle_right',15,15);
+        this.createPlayerAnimation('npc','idle_down',1,1);
+        this.createPlayerAnimation('npc','idle_left',43,43);
         // *** 
 
         this.cameras.main.startFollow(heroSprite, true);
@@ -42,25 +53,49 @@ export default class TestScene extends Scene {
                     id: 'hero',
                     sprite: heroSprite,
                     startPosition: { x: 8, y: 8 }
+                },
+                {
+                    id: 'npc0',
+                    sprite: npcSprite,
+                    startPosition: { x: 10, y: 8 },
+                    speed: 2,
                 }
             ]
         };
 
         this.gridEngine.create(map, gridEngineConfig);
 
-        this.gridEngine.movementStarted().subscribe(({ direction }: { direction: string }) => {
+        this.gridEngine.moveRandomly('npc0');
+
+        this.gridEngine.movementStarted().subscribe(({ charId, direction }: { charId: string, direction: string }) => {
             //this.lastKeyPressTime = Date.now(); // Update the last key press time
-            heroSprite.anims.play(direction);
-        });
-    
-        this.gridEngine.movementStopped().subscribe(({ direction }: { direction: string }) => {
-            heroSprite.anims.play(`idle_${direction}`);
-            heroSprite.anims.stop();
+            if (charId === 'hero') {
+                heroSprite.anims.play(`hero_${direction}`);
+            } else {
+                if (charId.includes('npc')){
+                    npcSprite.anims.play(`npc_${direction}`);
+                    return;
+                }
+
+            }
             
         });
     
-        this.gridEngine.directionChanged().subscribe(({ direction }: { direction: string }) => {
-            heroSprite.anims.play(`idle_${direction}`);
+        this.gridEngine.movementStopped().subscribe(({ charId, direction }: { charId: string, direction: string }) => {
+            if (charId === 'hero') {
+                heroSprite.anims.play(`hero_idle_${direction}`);
+                heroSprite.anims.stop();
+            } else {
+                
+            }
+        });
+    
+        this.gridEngine.directionChanged().subscribe(({ charId, direction }: { charId: string, direction: string }) => {
+            if (charId === 'hero') {
+                heroSprite.anims.play(`hero_idle_${direction}`);
+            } else {
+                
+            }
         });
 
         // Function to handle random movement
@@ -93,13 +128,14 @@ export default class TestScene extends Scene {
 
     // *** Create Anims
     createPlayerAnimation(
+        spriteSheet: string,
         name: string,
         startFrame: number,
         endFrame: number,
     ) {
         this.anims.create({
-          key: name,
-          frames: this.anims.generateFrameNumbers("hero", {
+          key: `${spriteSheet}_${name}`,
+          frames: this.anims.generateFrameNumbers(spriteSheet, {
             start: startFrame,
             end: endFrame,
           }),
