@@ -1,9 +1,10 @@
-import { getRandomValues, randomInt } from 'crypto';
+import { createInteractiveGameObject } from '../utils';
 import Phaser, { Input, Scene } from 'phaser';
 
 export default class TestScene extends Scene {
     private gridEngine!: any;
     private lastKeyPressTime: number = 0; // Track the time of the last key press
+    private heroActionCollider!: Phaser.GameObjects.Rectangle;
 
     constructor() {
         super('testscene');
@@ -14,16 +15,28 @@ export default class TestScene extends Scene {
     }
 
     create() {
+        const isDebugMode = this.physics.config.debug;
         // Set up flag to track initialization status
         let isGridEngineInitialized = false;
+        const interactiveLayers = this.add.group();
         const map = this.make.tilemap({ key: 'testmap' });
         map.addTilesetImage('ZeldaLike', 'tiles');
-        map.layers.forEach((layer, index) => {
-            map.createLayer(index, 'ZeldaLike', 0, 0);
-        });
 
         const heroSprite = this.physics.add.sprite(0, 0, 'hero', 1);
         const npcSprite = this.physics.add.sprite(0, 0, 'npc', 1);
+
+        map.layers.forEach((layer, index) => {
+            const mapLayer = map.createLayer(index, 'ZeldaLike', 0, 0);
+            if (mapLayer) {
+                if (layer.name == 'bushes' || layer.name == 'boxes') {
+                    interactiveLayers.add(mapLayer);
+                }
+                this.physics.add.collider(heroSprite, mapLayer);
+            } else {
+                console.error(`Failed to create layer for index ${index}`);
+            }
+        });
+
         // *** Character Animations
         // hero
         this.createPlayerAnimation('hero','up',30,32);
@@ -47,6 +60,47 @@ export default class TestScene extends Scene {
 
         this.cameras.main.startFollow(heroSprite, true);
         this.cameras.main.setFollowOffset(-heroSprite.width, -heroSprite.height);
+        
+        this.heroActionCollider = createInteractiveGameObject(
+            this,
+            heroSprite.x,
+            heroSprite.y,
+            16,
+            16,
+            'action',
+            isDebugMode
+        );
+
+        this.heroActionCollider.update = () => {
+            const facingDirection = this.gridEngine.getFacingDirection('hero');
+
+            switch (facingDirection) {
+                case 'down': {
+                    this.heroActionCollider.setX(heroSprite.x);
+                    this.heroActionCollider.setY(heroSprite.y + 40);
+                    break;
+                }
+                case 'up': {
+                    this.heroActionCollider.setX(heroSprite.x);
+                    this.heroActionCollider.setY(heroSprite.y);
+                    break;
+                }
+                case 'left': {
+                    this.heroActionCollider.setX(heroSprite.x - 16);
+                    this.heroActionCollider.setY(heroSprite.y + 24);
+                    break;
+                }
+                case 'right': {
+                    this.heroActionCollider.setX(heroSprite.x + 16);
+                    this.heroActionCollider.setY(heroSprite.y + 24);
+                    break;
+                }
+            
+                default: {
+                    break;
+                }
+            }
+        };
 
         const gridEngineConfig = {
             characters: [
@@ -69,16 +123,15 @@ export default class TestScene extends Scene {
         this.gridEngine.moveRandomly('npc0', 1500);
 
         this.gridEngine.movementStarted().subscribe(({ charId, direction }: { charId: string, direction: string }) => {
-            //this.lastKeyPressTime = Date.now(); // Update the last key press time
             if (charId === 'hero') {
                 heroSprite.anims.play(`hero_${direction}`);
             } else {
+                let _sprite = this.gridEngine.getSprite(charId);
                 if (charId.includes('npc')){
-                    npcSprite.anims.play(`npc_${direction}`);
+                    _sprite.anims.play(`npc_${direction}`);
                     return;
                 }
             }
-            
         });
     
         this.gridEngine.movementStopped().subscribe(({ charId, direction }: { charId: string, direction: string }) => {
@@ -86,9 +139,10 @@ export default class TestScene extends Scene {
                 heroSprite.anims.play(`hero_idle_${direction}`);
                 heroSprite.anims.stop();
             } else {
+                let _sprite = this.gridEngine.getSprite(charId);
                 if (charId.includes('npc')){
-                    npcSprite.anims.play(`npc_idle_${direction}`);
-                    npcSprite.anims.stop();
+                    _sprite.anims.play(`npc_idle_${direction}`);
+                    _sprite.anims.stop();
                     return;
                 }
             }
@@ -98,8 +152,9 @@ export default class TestScene extends Scene {
             if (charId === 'hero') {
                 heroSprite.anims.play(`hero_idle_${direction}`);
             } else {
+                let _sprite = this.gridEngine.getSprite(charId);
                 if (charId.includes('npc')){
-                    npcSprite.anims.play(`npc_idle_${direction}`);
+                    _sprite.anims.play(`npc_idle_${direction}`);
                     return;
                 }
             }
@@ -156,6 +211,7 @@ export default class TestScene extends Scene {
     update() {
         const cursors = this.input.keyboard?.createCursorKeys();
         if (cursors) {
+            this.heroActionCollider.update();
             if (cursors.left.isDown) {
                 this.gridEngine.move('hero', 'left');
                 this.lastKeyPressTime = Date.now(); // Update the last key press time
