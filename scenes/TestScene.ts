@@ -5,10 +5,12 @@ export default class TestScene extends Scene {
     private gridEngine!: any;
     private lastKeyPressTime: number = 0; // Track the time of the last key press
     private heroActionCollider!: Phaser.GameObjects.Rectangle;
-
+    
     constructor() {
         super('testscene');
     }
+
+    isAttacking = false;
 
     preload() {
         // Preload assets for splash and title screens
@@ -160,6 +162,43 @@ export default class TestScene extends Scene {
             }
         });
 
+        // Helper function to handle interaction logic
+        const handleInteraction = (tile: Phaser.Tilemaps.Tile | Phaser.Physics.Arcade.Sprite) => {
+            if (tile instanceof Phaser.Tilemaps.Tile) {
+                switch (tile.layer?.name) {
+                    case 'bushes': {
+                        if (this.isAttacking) {
+                            this.time.delayedCall(50, () => {
+                                tile.setVisible(false);
+                                tile.destroy();
+                            });
+                        }
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+            } else if (tile instanceof Phaser.Physics.Arcade.Sprite) {
+                // Handle sprite interaction here if needed
+            }
+        };
+
+        this.physics.add.overlap(
+            this.heroActionCollider,
+            interactiveLayers,
+            (objA, objB) => {
+                const tile = [objA, objB].find<Phaser.Tilemaps.Tile>(
+                    (obj): obj is Phaser.Tilemaps.Tile =>
+                        obj instanceof Phaser.Tilemaps.Tile
+                );
+                // Check if tile is defined before calling handleInteraction
+                if (tile) {
+                    handleInteraction(tile);
+                }
+            }
+        );
+
         // Function to handle random movement
         const handleRandomMovement = () => {
             if (!isGridEngineInitialized) return; // Exit if gridEngine is not initialized
@@ -210,21 +249,25 @@ export default class TestScene extends Scene {
 
     update() {
         const cursors = this.input.keyboard?.createCursorKeys();
-        if (cursors) {
-            this.heroActionCollider.update();
-            if (cursors.left.isDown) {
+        const spaceKey = this.input.keyboard?.addKey(Input.Keyboard.KeyCodes.SPACE);
+        const heroSprite = this.gridEngine.getSprite('hero');
+
+        const currentDirection = this.gridEngine.getFacingDirection('hero');
+        this.heroActionCollider.update();
+        if (cursors && spaceKey) {
+            if (Input.Keyboard.JustDown(spaceKey)) {
+                heroSprite.anims.play(`attack_${currentDirection}`);
+                this.isAttacking = true;
+            } else if (cursors.left.isDown) {
                 this.gridEngine.move('hero', 'left');
-                this.lastKeyPressTime = Date.now(); // Update the last key press time
             } else if (cursors.right.isDown) {
                 this.gridEngine.move('hero', 'right');
-                this.lastKeyPressTime = Date.now(); // Update the last key press time
             } else if (cursors.up.isDown) {
                 this.gridEngine.move('hero', 'up');
-                this.lastKeyPressTime = Date.now(); // Update the last key press time
             } else if (cursors.down.isDown) {
                 this.gridEngine.move('hero', 'down');
-                this.lastKeyPressTime = Date.now(); // Update the last key press time
             }
+            this.lastKeyPressTime = Date.now(); // Update the last key press time
         }
     }
 
