@@ -11,6 +11,10 @@ export default class Preloader extends Scene {
             frameWidth: 16,
             frameHeight: 24
         });
+        this.load.spritesheet('heroAtk', 'tiles/character.png', {
+            frameWidth: 32,
+            frameHeight: 24
+        });
         this.load.spritesheet('npc', 'tiles/character.png', {
             frameWidth: 16,
             frameHeight: 24
