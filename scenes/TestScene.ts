@@ -28,7 +28,7 @@ export default class TestScene extends Scene {
         let currentHeroSprite: Phaser.Physics.Arcade.Sprite;
         const heroSprite = this.physics.add.sprite(0, 0, 'hero', 1);
         currentHeroSprite = heroSprite;
-        const heroAtkSprite = this.physics.add.sprite(-10, -10, 'heroAtk', 1);
+        const heroAtkSprite = this.physics.add.sprite(-10, -10, 'heroAtk', 34);
         const npcSprite = this.physics.add.sprite(0, 0, 'npc', 1);
 
         map.layers.forEach((layer, index) => {
