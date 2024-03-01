@@ -229,7 +229,8 @@ export default class TestScene extends Scene {
                         if (this.isAttacking) {
                             this.time.delayedCall(50, () => {
                                 tile.setVisible(false);
-                                tile.destroy();
+                                tile.properties.ge_collide = false;
+                                //tile.destroy(); causes an error if walked over after destroy
                             });
                         }
                         break;
@@ -284,6 +285,39 @@ export default class TestScene extends Scene {
 
         // Update initialization flag after gridEngine is initialized
         isGridEngineInitialized = true;
+
+        //*** ONSCREEN KEYS ***
+        // // Create a white box graphics object
+        // const whiteBox = this.add.graphics();
+        
+        // // Set the fill style to white
+        // whiteBox.fillStyle(0xffffff, 1);
+        
+        // // Draw a rectangle representing the white box
+        // whiteBox.fillRect(0, this.cameras.main.height - 100, 100, 100); // Adjust size as needed
+        
+        // // Set the depth of the white box to ensure it's rendered on top of other elements
+        // whiteBox.setDepth(Number.MAX_SAFE_INTEGER);
+        
+        // // Set the white box to ignore camera movement
+        // whiteBox.setScrollFactor(0);
+
+        // // Create an input rectangle that covers the entire screen
+        // const inputRect = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000, 0);
+        
+        // // Make the input rectangle interactive
+        // inputRect.setInteractive();
+
+        // // Track when the input rectangle is pressed
+        // inputRect.on('pointerdown', () => {
+        //     console.log('Rectangle pressed');
+        //     isDragging = false;
+        // });
+
+        // // Track when the input rectangle is released
+        // inputRect.on('pointerup', () => {
+        //     console.log('Rectangle released');
+        // });
     }
 
     // *** Create Anims
@@ -345,19 +379,42 @@ export default class TestScene extends Scene {
                     // Set isAttacking back to false
                     this.isAttacking = false;
                 });
-            } else if (cursors.left.isDown) {
+            } else if (cursors.left.isDown && !this.isAttacking) {
                 this.inputPressed();
                 this.gridEngine.move('hero', 'left');
-            } else if (cursors.right.isDown) {
+            } else if (cursors.right.isDown && !this.isAttacking) {
                 this.inputPressed();
                 this.gridEngine.move('hero', 'right');
-            } else if (cursors.up.isDown) {
+            } else if (cursors.up.isDown && !this.isAttacking) {
                 this.inputPressed();
                 this.gridEngine.move('hero', 'up');
-            } else if (cursors.down.isDown) {
+            } else if (cursors.down.isDown && !this.isAttacking) {
                 this.inputPressed();
                 this.gridEngine.move('hero', 'down');
             }
+        }
+    }
+
+    moveCharacter(direction: string) {
+        switch (direction) {
+            case 'up':
+                this.inputPressed();
+                this.gridEngine.move('hero', 'up');
+                break;
+            case 'down':
+                this.inputPressed();
+                this.gridEngine.move('hero', 'down');
+                break;
+            case 'left':
+                this.inputPressed();
+                this.gridEngine.move('hero', 'left');
+                break;
+            case 'right':
+                this.inputPressed();
+                this.gridEngine.move('hero', 'right');
+                break;
+            default:
+                break;
         }
     }
 
