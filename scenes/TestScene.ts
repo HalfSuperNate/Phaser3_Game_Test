@@ -1,17 +1,25 @@
 import { createInteractiveGameObject } from '../utils';
 import Phaser, { Input, Scene } from 'phaser';
+import EventManager from '../pages/EventManager';
+
+interface MovementEventData {
+    direction: string;
+}
+
+const eventManager = EventManager.getInstance();
 
 export default class TestScene extends Scene {
     private gridEngine!: any;
     private lastKeyPressTime: number = 0; // Track the time of the last key press
     private heroActionCollider!: Phaser.GameObjects.Rectangle;
-    
+
     constructor() {
         super('testscene');
     }
 
     isAttacking = false;
     isMoving = false;
+    isDialog = false;
 
     preload() {
         // Preload assets for splash and title screens
@@ -34,7 +42,7 @@ export default class TestScene extends Scene {
         map.layers.forEach((layer, index) => {
             const mapLayer = map.createLayer(index, 'ZeldaLike', 0, 0);
             if (mapLayer) {
-                if (layer.name == 'bushes' || layer.name == 'boxes') {
+                if (layer.name == 'bushes' || layer.name == 'boxes'|| layer.name == 'signs') {
                     interactiveLayers.add(mapLayer);
                 }
                 this.physics.add.collider(heroSprite, mapLayer);
@@ -235,6 +243,19 @@ export default class TestScene extends Scene {
                         }
                         break;
                     }
+                    case 'signs': {
+                        if (this.isAttacking && !this.isDialog) {
+                            const facingDirection = this.gridEngine.getFacingDirection('hero')
+                            heroSprite.anims.play(`hero_idle_${facingDirection}`);
+                            //console.log('DISPLAY SIGN MESSAGE');
+                            // Trigger the dialog when interacting with signs
+                            eventManager.emitEvent('openDialog', { dialogType: 'Sign Says...', message: 'Hello World' });
+                            this.isDialog = true;
+                        } else {
+                            this.isDialog = false;
+                        }
+                        break;
+                    }
                     default: {
                         break;
                     }
@@ -253,10 +274,12 @@ export default class TestScene extends Scene {
                         obj instanceof Phaser.Tilemaps.Tile
                 );
                 // Check if tile is defined before calling handleInteraction
-                if (tile) {
+                if (tile && tile.properties.ge_collide) {
                     handleInteraction(tile);
                 }
-            }
+            },
+            undefined, // context
+            this // overlapCallbackContext, set to 'this' to use the current scene as the context for the callback
         );
 
         // Function to handle random movement
@@ -318,6 +341,30 @@ export default class TestScene extends Scene {
         // inputRect.on('pointerup', () => {
         //     console.log('Rectangle released');
         // });
+
+        eventManager.addEventListener('movement', (data: MovementEventData) => {
+            if (data.direction === 'attack') {
+                const currentDirection = this.gridEngine.getFacingDirection('hero');
+                this.inputPressed();
+                currentHeroSprite = heroAtkSprite;
+                heroSprite.anims.play(`heroAtk_attack_${currentDirection}`);
+                this.isAttacking = true;
+                this.time.delayedCall(50, () => {
+                    currentHeroSprite = heroSprite;
+                    if (this.isMoving) {
+                        heroSprite.anims.play(`hero_${currentDirection}`);
+                    } else {
+                        heroSprite.anims.play(`hero_idle_${currentDirection}`);
+                    }
+                    // Set isAttacking back to false
+                    this.isAttacking = false;
+                });
+                return;
+            }
+            // Handle movement based on the direction provided in the data
+            this.inputPressed();
+            this.addQueueMovement(data.direction);
+        });
     }
 
     // *** Create Anims
@@ -426,7 +473,7 @@ export default class TestScene extends Scene {
             return;
         }
         this.gridEngine.addQueueMovements('hero', [direction], {
-          pathBlockedStrategy: 'STOP',
+          pathBlockedStrategy: 'SKIP',
           pathBlockedWaitTimeoutMs: 1000,
         });
     }
