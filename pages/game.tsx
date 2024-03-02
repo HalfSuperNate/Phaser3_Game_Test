@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import DialogModal from './DialogModal';
-import EventManager from '../pages/EventManager';
+import DialogModal from '../components/DialogModal';
+import EventManager from '../components/EventManager';
 
 //import { Game as GameType } from 'phaser';
 // import GridEngine from 'grid-engine';

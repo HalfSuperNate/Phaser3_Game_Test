@@ -1,6 +1,6 @@
 import { createInteractiveGameObject } from '../utils';
 import Phaser, { Input, Scene } from 'phaser';
-import EventManager from '../pages/EventManager';
+import EventManager from '../components/EventManager';
 
 interface MovementEventData {
     direction: string;
