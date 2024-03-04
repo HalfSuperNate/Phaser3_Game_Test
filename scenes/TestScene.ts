@@ -84,40 +84,58 @@ export default class TestScene extends Scene {
 
         let isDragging = false;
         let lastPointerPosition: { x: number, y: number } | null = null;
+        // Define a variable to track the camera mode
+        let isPanningMode = false;
 
-        // Add event listeners to handle mouse drag for panning
-        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-            isDragging = true;
-            lastPointerPosition = { x: pointer.position.x, y: pointer.position.y };
-        });
+        // Function to toggle between panning and follow modes
+        const toggleCameraMode = () => {
+            if (isPanningMode) {
+                // Follow main character
+                this.cameras.main.startFollow(currentHeroSprite, true);
+                this.cameras.main.setFollowOffset(-currentHeroSprite.width, -currentHeroSprite.height);
+            } else {
+                // Add event listeners to handle mouse drag for panning
+                this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+                    isDragging = true;
+                    lastPointerPosition = { x: pointer.position.x, y: pointer.position.y };
+                });
 
-        this.input.on('pointerup', () => {
-            isDragging = false;
-            lastPointerPosition = null;
-        });
+                this.input.on('pointerup', () => {
+                    isDragging = false;
+                    lastPointerPosition = null;
+                });
 
-        this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-            if (isDragging && lastPointerPosition) {
-                // Calculate the distance moved since the last frame
-                const dx = pointer.position.x - lastPointerPosition.x;
-                const dy = pointer.position.y - lastPointerPosition.y;
+                this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+                    if (isDragging && lastPointerPosition) {
+                        // Calculate the distance moved since the last frame
+                        const dx = pointer.position.x - lastPointerPosition.x;
+                        const dy = pointer.position.y - lastPointerPosition.y;
 
-                // Invert the direction of movement for both X and Y axes
-                const invertedDx = -dx;
-                const invertedDy = -dy;
+                        // Invert the direction of movement for both X and Y axes
+                        const invertedDx = -dx;
+                        const invertedDy = -dy;
 
-                // Adjust the camera position by the inverted distance
-                this.cameras.main.scrollX += invertedDx;
-                this.cameras.main.scrollY += invertedDy;
+                        // Adjust the camera position by the inverted distance
+                        this.cameras.main.scrollX += invertedDx;
+                        this.cameras.main.scrollY += invertedDy;
 
-                // Round the camera position to the nearest pixel
-                this.cameras.main.scrollX = Math.round(this.cameras.main.scrollX);
-                this.cameras.main.scrollY = Math.round(this.cameras.main.scrollY);
+                        // Round the camera position to the nearest pixel
+                        this.cameras.main.scrollX = Math.round(this.cameras.main.scrollX);
+                        this.cameras.main.scrollY = Math.round(this.cameras.main.scrollY);
 
-                // Update the last pointer position
-                lastPointerPosition = { x: pointer.position.x, y: pointer.position.y };
+                        // Update the last pointer position
+                        lastPointerPosition = { x: pointer.position.x, y: pointer.position.y };
+                    }
+                });
             }
-        });
+
+            // Toggle the camera mode flag
+            isPanningMode = !isPanningMode;
+            console.log("Camera is Panning: " + `${isPanningMode}`);
+        };
+
+        // Call toggleCameraMode to switch between camera modes
+        toggleCameraMode();
         //*** CAMERA END ***
         
         //*** MAIN CHARACTER COLLIDER ***
@@ -343,9 +361,10 @@ export default class TestScene extends Scene {
         // });
 
         eventManager.addEventListener('movement', (data: MovementEventData) => {
+            if (data.direction === 'toggleCameraMode') {toggleCameraMode(); return;}
+            this.inputPressed();
             if (data.direction === 'attack') {
                 const currentDirection = this.gridEngine.getFacingDirection('hero');
-                this.inputPressed();
                 currentHeroSprite = heroAtkSprite;
                 heroSprite.anims.play(`heroAtk_attack_${currentDirection}`);
                 this.isAttacking = true;
@@ -361,9 +380,20 @@ export default class TestScene extends Scene {
                 });
                 return;
             }
-            // Handle movement based on the direction provided in the data
-            this.inputPressed();
-            this.addQueueMovement(data.direction);
+
+            // Check if move direction is blocked
+            const nextPosition = this.gridEngine.getTilePosInDirection('hero', undefined, data.direction);
+            const isNextPositionBlocked = this.gridEngine.isBlocked(nextPosition);
+
+            if (isNextPositionBlocked) {
+                this.gridEngine.move('hero', data.direction);
+            }
+
+            // Handle movement based on the direction provided in the data   
+            this.gridEngine.addQueueMovements('hero', [data.direction], {
+                pathBlockedStrategy: 'SKIP',
+                pathBlockedWaitTimeoutMs: 1000,
+            });      
         });
     }
 
@@ -472,9 +502,10 @@ export default class TestScene extends Scene {
             });
             return;
         }
+
         this.gridEngine.addQueueMovements('hero', [direction], {
-          pathBlockedStrategy: 'SKIP',
-          pathBlockedWaitTimeoutMs: 1000,
+            pathBlockedStrategy: 'SKIP',
+            pathBlockedWaitTimeoutMs: 1000,
         });
     }
 

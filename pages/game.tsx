@@ -129,6 +129,38 @@ const Game = () => {
         }
     }, [game]);
 
+    const handleButtonClick = (event: string, data?: any) => {
+        if (initialized && game) {
+            const eventManager = EventManager.getInstance();
+            if (game.events) {
+                eventManager.emitEvent(event, data);
+            } else {
+                console.error("Game events are not available");
+            }
+        } else {
+            console.error("Game is not initialized or available");
+        }
+    };
+
+    let movementTimeout: NodeJS.Timeout | undefined;
+    let isMovementButtonPressed = false;
+
+    const handleMovementButtonDown = (direction: string) => {
+        // Trigger the movement immediately when the button is pressed
+        handleButtonClick('movement', { direction });
+
+        // Set a timeout to repeatedly trigger the movement while the button is held down
+        movementTimeout = setInterval(() => {
+            handleButtonClick('movement', { direction });
+        }, 150); // Adjust the interval as needed
+    };
+
+    const handleMovementButtonUp = () => {
+        // Clear the timeout and reset the button state when the button is released
+        clearInterval(movementTimeout);
+        isMovementButtonPressed = false;
+    };
+
     return (
         <>
             <div id="game-content" key="game-content">
@@ -140,84 +172,48 @@ const Game = () => {
                 dialogType={dialogType} // Pass dialogType
                 dialogMessage={dialogMessage} // Pass dialogMessage
             />
-            <button onClick={() => {
-                    if (initialized && game) {
-                        const eventManager = EventManager.getInstance();
-                        if (game.events) {
-                            eventManager.emitEvent('openDialog', { dialogType: dialogType, message: dialogMessage });
-                        } else {
-                            console.error("Game events are not available");
-                        }
-                    } else {
-                        console.error("Game is not initialized or available");
-                    }
-                }}>Click for Dialog Test
+            <button onClick={() => handleButtonClick('movement', { direction: 'toggleCameraMode' })}>
+                Toggle Camera Mode
             </button>
-            <button onClick={() => {
-                    if (initialized && game) {
-                        const eventManager = EventManager.getInstance();
-                        if (game.events) {
-                            eventManager.emitEvent('movement', { direction: 'left' });
-                        } else {
-                            console.error("Game events are not available");
-                        }
-                    } else {
-                        console.error("Game is not initialized or available");
-                    }
-                }}>⬅
-            </button>
-            <button onClick={() => {
-                    if (initialized && game) {
-                        const eventManager = EventManager.getInstance();
-                        if (game.events) {
-                            eventManager.emitEvent('movement', { direction: 'right' });
-                        } else {
-                            console.error("Game events are not available");
-                        }
-                    } else {
-                        console.error("Game is not initialized or available");
-                    }
-                }}>➡
-            </button>
-            <button onClick={() => {
-                    if (initialized && game) {
-                        const eventManager = EventManager.getInstance();
-                        if (game.events) {
-                            eventManager.emitEvent('movement', { direction: 'up' });
-                        } else {
-                            console.error("Game events are not available");
-                        }
-                    } else {
-                        console.error("Game is not initialized or available");
-                    }
-                }}>⬆
-            </button>
-            <button onClick={() => {
-                    if (initialized && game) {
-                        const eventManager = EventManager.getInstance();
-                        if (game.events) {
-                            eventManager.emitEvent('movement', { direction: 'down' });
-                        } else {
-                            console.error("Game events are not available");
-                        }
-                    } else {
-                        console.error("Game is not initialized or available");
-                    }
-                }}>⬇
-            </button>
-            <button onClick={() => {
-                    if (initialized && game) {
-                        const eventManager = EventManager.getInstance();
-                        if (game.events) {
-                            eventManager.emitEvent('movement', { direction: 'attack' });
-                        } else {
-                            console.error("Game events are not available");
-                        }
-                    } else {
-                        console.error("Game is not initialized or available");
-                    }
-                }}>🗡️
-            </button>
+            <div style={{ textAlign: 'center' }}>
+                <div style={{ display: 'inline-block' }}>
+                    <button 
+                        onMouseDown={() => {
+                            handleMovementButtonDown('up');
+                            isMovementButtonPressed = true;
+                        }}
+                        onMouseUp={handleMovementButtonUp}
+                        onMouseLeave={handleMovementButtonUp}
+                    >⬆️</button><br />
+                    <button 
+                        onMouseDown={() => {
+                            handleMovementButtonDown('left');
+                            isMovementButtonPressed = true;
+                        }}
+                        onMouseUp={handleMovementButtonUp}
+                        onMouseLeave={handleMovementButtonUp}
+                    >⬅️</button>
+                    <button 
+                        onMouseDown={() => {
+                            handleMovementButtonDown('right');
+                            isMovementButtonPressed = true;
+                        }}
+                        onMouseUp={handleMovementButtonUp}
+                        onMouseLeave={handleMovementButtonUp}
+                    >➡️</button><br />
+                    <button 
+                        onMouseDown={() => {
+                            handleMovementButtonDown('down');
+                            isMovementButtonPressed = true;
+                        }}
+                        onMouseUp={handleMovementButtonUp}
+                        onMouseLeave={handleMovementButtonUp}
+                    >⬇️</button>
+                </div>
+                <div style={{ display: 'inline-block', marginLeft: '20px' }}>
+                    <button onClick={() => handleButtonClick('movement', { direction: 'attack' })}>🗡️</button>
+                </div>
+            </div>
         </>
     )
 }
