@@ -6,14 +6,19 @@ import EventManager from '../components/EventManager';
 // import GridEngine from 'grid-engine';
 // import isMobile from 'is-mobile';
 
+interface Dialogue {
+    dialogType: string;
+    message: string;
+}
+
 const Game = () => {
     const isDevelopment = process?.env?.NODE_ENV !== 'production';
     const [game, setGame] = useState<Phaser.Game | null>(null);
     const [initialized, setInitialized] = useState(false);
     const [showDialog, setShowDialog] = useState(false);
     // Define state variables for dialog type and message
-    const [dialogType, setDialogType] = useState<string>('');
-    const [dialogMessage, setDialogMessage] = useState<string>('');
+    const [dialogues, setDialogues] = useState<Dialogue[]>([]);
+    const [currentDialogueIndex, setCurrentDialogueIndex] = useState(0);
 
     // Create game inside useEffect once
     // ^ only once
@@ -95,12 +100,12 @@ const Game = () => {
     useEffect(() => {
         const eventManager = EventManager.getInstance();
         // Subscribe to the 'openDialog' event
-        const openDialogListener = (data: { dialogType: string, message: string }) => {
+        const openDialogListener = (dialogues: Dialogue[]) => {
             setShowDialog(true);
-            //console.log('Dialog opened with message:', data.message);
+            //console.log('Dialog opened with messages:', dialogues.map(dialogue => dialogue.message).join(', '));
             // Update the dialog content based on the received message
-            setDialogType(data.dialogType);
-            setDialogMessage(data.message);
+            setDialogues(dialogues);
+            setCurrentDialogueIndex(0); // Reset to display the first message
         };
         eventManager.addEventListener('openDialog', openDialogListener);
 
@@ -112,6 +117,16 @@ const Game = () => {
     
     const handleCloseDialog = () => {
         setShowDialog(false);
+    };
+
+    const handleNextDialogue = () => {
+        // Check if there are more dialogues to display
+        if (currentDialogueIndex < dialogues.length - 1) {
+            setCurrentDialogueIndex(prevIndex => prevIndex + 1);
+        } else {
+            // Close the dialog if all messages have been displayed
+            setShowDialog(false);
+        }
     };
 
     // Cleanup logic executed outside useEffect
@@ -169,8 +184,9 @@ const Game = () => {
             <DialogModal 
                 showDialog={showDialog} 
                 onClose={handleCloseDialog} 
-                dialogType={dialogType} // Pass dialogType
-                dialogMessage={dialogMessage} // Pass dialogMessage
+                dialogues={dialogues} 
+                currentDialogueIndex={currentDialogueIndex} 
+                onNext={handleNextDialogue} // Add onNext prop
             />
             <button onClick={() => handleButtonClick('movement', { direction: 'toggleCameraMode' })}>
                 Toggle Camera Mode

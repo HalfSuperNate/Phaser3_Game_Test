@@ -3,11 +3,12 @@ import React, { useEffect } from 'react';
 interface DialogModalProps {
     showDialog: boolean;
     onClose: () => void;
-    dialogType: string; // Add prop for dialog type
-    dialogMessage: string; // Add prop for dialog message
+    dialogues: { dialogType: string; message: string }[];
+    currentDialogueIndex: number; // Add currentDialogueIndex prop
+    onNext: () => void;
 }
 
-const DialogModal: React.FC<DialogModalProps> = ({ showDialog, onClose, dialogType, dialogMessage }) => {
+const DialogModal: React.FC<DialogModalProps> = ({ showDialog, onClose, dialogues, currentDialogueIndex, onNext }) => {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (showDialog && (event.key === 'Enter' || event.key === 'Escape')) {
@@ -25,11 +26,23 @@ const DialogModal: React.FC<DialogModalProps> = ({ showDialog, onClose, dialogTy
             document.body.removeEventListener('keydown', handleKeyDown);
         };
     }, [showDialog, onClose]);
+
+    // Check if dialogues array is empty or currentDialogueIndex is out of bounds
+    if (!dialogues.length || currentDialogueIndex < 0 || currentDialogueIndex >= dialogues.length) {
+        return null; // Return null if no dialogues or invalid currentDialogueIndex
+    }
+
+    const currentDialogue = dialogues[currentDialogueIndex];
     
     return (
         <dialog open={showDialog}>
-            <h2>{dialogType}</h2>
-            <p>{dialogMessage}</p> {/* Display dynamic message */}
+            <div>
+                <h2>{currentDialogue.dialogType}</h2>
+                <p>{currentDialogue.message}</p>
+            </div>
+            {currentDialogueIndex < dialogues.length - 1 && ( // Show next button if there are more messages
+                <button onClick={onNext}>Next</button>
+            )}
             <button onClick={onClose}>Close</button>
         </dialog>
     );

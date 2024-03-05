@@ -6,6 +6,11 @@ interface MovementEventData {
     direction: string;
 }
 
+interface Dialogue {
+    dialogType: string;
+    message: string;
+}
+
 const eventManager = EventManager.getInstance();
 
 export default class TestScene extends Scene {
@@ -90,10 +95,18 @@ export default class TestScene extends Scene {
         // Function to toggle between panning and follow modes
         const toggleCameraMode = () => {
             if (isPanningMode) {
+                // Remove event listeners for panning
+                this.input.off('pointerdown');
+                this.input.off('pointerup');
+                this.input.off('pointermove');
+
                 // Follow main character
                 this.cameras.main.startFollow(currentHeroSprite, true);
                 this.cameras.main.setFollowOffset(-currentHeroSprite.width, -currentHeroSprite.height);
             } else {
+                // Stop following main character (if it's already following)
+                this.cameras.main.stopFollow();
+
                 // Add event listeners to handle mouse drag for panning
                 this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
                     isDragging = true;
@@ -267,7 +280,12 @@ export default class TestScene extends Scene {
                             heroSprite.anims.play(`hero_idle_${facingDirection}`);
                             //console.log('DISPLAY SIGN MESSAGE');
                             // Trigger the dialog when interacting with signs
-                            eventManager.emitEvent('openDialog', { dialogType: 'Sign Says...', message: 'Hello World' });
+                            const dialogues = [
+                                { dialogType: 'Sign Says...', message: 'Hello World' },
+                                { dialogType: 'Sign Says...', message: 'End' },
+                                // Add more dialogues if needed
+                            ];
+                            eventManager.emitEvent('openDialog', dialogues);
                             this.isDialog = true;
                         } else {
                             this.isDialog = false;
@@ -457,37 +475,30 @@ export default class TestScene extends Scene {
                     this.isAttacking = false;
                 });
             } else if (cursors.left.isDown && !this.isAttacking) {
-                this.inputPressed();
-                this.gridEngine.move('hero', 'left');
+                this.moveCharacter('left');
             } else if (cursors.right.isDown && !this.isAttacking) {
-                this.inputPressed();
-                this.gridEngine.move('hero', 'right');
+                this.moveCharacter('right');
             } else if (cursors.up.isDown && !this.isAttacking) {
-                this.inputPressed();
-                this.gridEngine.move('hero', 'up');
+                this.moveCharacter('up');
             } else if (cursors.down.isDown && !this.isAttacking) {
-                this.inputPressed();
-                this.gridEngine.move('hero', 'down');
+                this.moveCharacter('down');
             }
         }
     }
 
     moveCharacter(direction: string) {
+        this.inputPressed();
         switch (direction) {
             case 'up':
-                this.inputPressed();
                 this.gridEngine.move('hero', 'up');
                 break;
             case 'down':
-                this.inputPressed();
                 this.gridEngine.move('hero', 'down');
                 break;
             case 'left':
-                this.inputPressed();
                 this.gridEngine.move('hero', 'left');
                 break;
             case 'right':
-                this.inputPressed();
                 this.gridEngine.move('hero', 'right');
                 break;
             default:
