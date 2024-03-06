@@ -12,6 +12,7 @@ interface Dialogue {
 }
 
 const eventManager = EventManager.getInstance();
+const random = new Phaser.Math.RandomDataGenerator();
 
 export default class TestScene extends Scene {
     private gridEngine!: any;
@@ -22,12 +23,14 @@ export default class TestScene extends Scene {
         super('testscene');
     }
 
+    preloadComplete = false;
     isAttacking = false;
     isMoving = false;
     isDialog = false;
 
     preload() {
         // Preload assets for splash and title screens
+        this.preloadComplete = true;
     }
 
     create() {
@@ -194,7 +197,7 @@ export default class TestScene extends Scene {
         };
         //*** MAIN CHARACTER COLLIDER END ***
 
-        const gridEngineConfig = {
+        let gridEngineConfig = {
             characters: [
                 {
                     id: 'hero',
@@ -204,7 +207,7 @@ export default class TestScene extends Scene {
                 {
                     id: 'npc0',
                     sprite: npcSprite,
-                    startPosition: { x: 10, y: 8 },
+                    startPosition: { x: 0, y: 11 },
                     speed: 1.5,
                 },
                 {
@@ -216,9 +219,65 @@ export default class TestScene extends Scene {
             ]
         };
 
-        this.gridEngine.create(map, gridEngineConfig);
+        //*** NPC SPAWNER ***
+        // Create an array to store references to all NPC sprites
+        const npcSprites: Phaser.Physics.Arcade.Sprite[] = [];
 
-        this.gridEngine.moveRandomly('npc0', 1500);
+        // Define the number of NPCs you want to create
+        const numNPCs = 171;
+
+        // Define the NPC sprite configuration (assuming npcSprite is defined elsewhere)
+        const npcSpriteConfig = { x: 0, y: 0, texture: 'npc', frame: 1 };
+
+        // Iterate to create each NPC sprite
+        for (let i = 1; i < numNPCs; i++) {
+            // Clone the existing NPC sprite
+            const npcSprite = this.physics.add.sprite(npcSpriteConfig.x, npcSpriteConfig.y, npcSpriteConfig.texture, npcSpriteConfig.frame);
+
+            // Add NPC sprite to the array
+            npcSprites.push(npcSprite);
+            
+            // Configure each NPC sprite as needed
+            // For example, you can set different positions for each NPC sprite
+            //npcSprite.setPosition( /* Set position here */ );
+            let X = 0;
+            let Y = 0;
+            if (i < 30 ) {
+                X = i;
+                Y = 11;
+            } else if (i < 60) {
+                X = 0;
+                Y = 12;
+            } else if (i < 90) {
+                X = 3;
+                Y = 13;
+            } else if (i < 120) {
+                X = 25;
+                Y = 3;
+            } else if (i < 150) {
+                X = 25;
+                Y = 16;
+            } else if (i < 180) {
+                X = 16;
+                Y = 16;
+            }
+
+            // Add the NPC sprite to the grid engine configuration or handle its behavior
+            gridEngineConfig.characters.push({
+                id: `npc${i}`, // Unique ID for the NPC
+                sprite: npcSprite,
+                startPosition: { x: X, y: Y },
+                speed: 1.5,
+                // Add any other properties or configurations needed for the NPC
+            });
+        }
+
+        this.gridEngine.create(map, gridEngineConfig);
+        for (let i = 1; i < numNPCs; i++) {
+            this.gridEngine.moveRandomly(`npc${i}`, random.integerInRange(500, 1500)); // Move NPC randomly
+        }
+        this.gridEngine.moveRandomly('npc0', 1500); // original NPC
+        //*** NPC SPAWNER END ***
 
         this.gridEngine.movementStarted().subscribe(({ charId, direction }: { charId: string, direction: string }) => {
             if (charId === 'hero') {
@@ -345,39 +404,6 @@ export default class TestScene extends Scene {
         // Update initialization flag after gridEngine is initialized
         isGridEngineInitialized = true;
 
-        //*** ONSCREEN KEYS ***
-        // // Create a white box graphics object
-        // const whiteBox = this.add.graphics();
-        
-        // // Set the fill style to white
-        // whiteBox.fillStyle(0xffffff, 1);
-        
-        // // Draw a rectangle representing the white box
-        // whiteBox.fillRect(0, this.cameras.main.height - 100, 100, 100); // Adjust size as needed
-        
-        // // Set the depth of the white box to ensure it's rendered on top of other elements
-        // whiteBox.setDepth(Number.MAX_SAFE_INTEGER);
-        
-        // // Set the white box to ignore camera movement
-        // whiteBox.setScrollFactor(0);
-
-        // // Create an input rectangle that covers the entire screen
-        // const inputRect = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000, 0);
-        
-        // // Make the input rectangle interactive
-        // inputRect.setInteractive();
-
-        // // Track when the input rectangle is pressed
-        // inputRect.on('pointerdown', () => {
-        //     console.log('Rectangle pressed');
-        //     isDragging = false;
-        // });
-
-        // // Track when the input rectangle is released
-        // inputRect.on('pointerup', () => {
-        //     console.log('Rectangle released');
-        // });
-
         eventManager.addEventListener('movement', (data: MovementEventData) => {
             if (data.direction === 'toggleCameraMode') {toggleCameraMode(); return;}
             this.inputPressed();
@@ -449,6 +475,7 @@ export default class TestScene extends Scene {
     // ***
 
     update() {
+        if(!this.preloadComplete) return;
         const cursors = this.input.keyboard?.createCursorKeys();
         const spaceKey = this.input.keyboard?.addKey(Input.Keyboard.KeyCodes.SPACE);
         const heroSprite = this.gridEngine.getSprite('hero');
