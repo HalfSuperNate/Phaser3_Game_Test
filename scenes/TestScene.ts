@@ -1,14 +1,10 @@
-import { createInteractiveGameObject } from '../utils';
+import { createInteractiveGameObject } from '../utils/utils';
 import Phaser, { Input, Scene } from 'phaser';
 import EventManager from '../components/EventManager';
+import TotalSupplyFetcher from '../utils/TotalSupplyFetcher';
 
 interface MovementEventData {
     direction: string;
-}
-
-interface Dialogue {
-    dialogType: string;
-    message: string;
 }
 
 const eventManager = EventManager.getInstance();
@@ -18,22 +14,25 @@ export default class TestScene extends Scene {
     private gridEngine!: any;
     private lastKeyPressTime: number = 0; // Track the time of the last key press
     private heroActionCollider!: Phaser.GameObjects.Rectangle;
+    private numNPCs: number = 0;
 
     constructor() {
         super('testscene');
     }
 
     preloadComplete = false;
+    createComplete = false;
     isAttacking = false;
     isMoving = false;
     isDialog = false;
 
-    preload() {
+    async preload() {
         // Preload assets for splash and title screens
         this.preloadComplete = true;
     }
 
-    create() {
+    async create() {
+        await this.preload();
         const isDebugMode = this.physics.config.debug;
         // Set up flag to track initialization status
         let isGridEngineInitialized = false;
@@ -223,14 +222,24 @@ export default class TestScene extends Scene {
         // Create an array to store references to all NPC sprites
         const npcSprites: Phaser.Physics.Arcade.Sprite[] = [];
 
+        // Listen for the totalSupplyFetched event
+        EventManager.getInstance().addEventListener('totalSupplyFetched', (totalSupply: number) => {
+            //console.log('Total supply fetched:', totalSupply);
+            // Handle the total supply data here, e.g., store it in a variable or use it in your scene
+            this.numNPCs = totalSupply;
+        });
+
+        // Fetch total supply
+        await TotalSupplyFetcher.fetchTotalSupply();
+
         // Define the number of NPCs you want to create
-        const numNPCs = 171;
+        const numNPCs = this.numNPCs; //171; // totalSupply from contract
 
         // Define the NPC sprite configuration (assuming npcSprite is defined elsewhere)
         const npcSpriteConfig = { x: 0, y: 0, texture: 'npc', frame: 1 };
 
         // Iterate to create each NPC sprite
-        for (let i = 1; i < numNPCs; i++) {
+        for (let i = 0; i < numNPCs; i++) {
             // Clone the existing NPC sprite
             const npcSprite = this.physics.add.sprite(npcSpriteConfig.x, npcSpriteConfig.y, npcSpriteConfig.texture, npcSpriteConfig.frame);
 
@@ -276,7 +285,7 @@ export default class TestScene extends Scene {
         for (let i = 1; i < numNPCs; i++) {
             this.gridEngine.moveRandomly(`npc${i}`, random.integerInRange(500, 1500)); // Move NPC randomly
         }
-        this.gridEngine.moveRandomly('npc0', 1500); // original NPC
+        //this.gridEngine.moveRandomly('npc0', 1500); // original NPC
         //*** NPC SPAWNER END ***
 
         this.gridEngine.movementStarted().subscribe(({ charId, direction }: { charId: string, direction: string }) => {
@@ -439,6 +448,8 @@ export default class TestScene extends Scene {
                 pathBlockedWaitTimeoutMs: 1000,
             });      
         });
+
+        this.createComplete = true;
     }
 
     // *** Create Anims
@@ -475,7 +486,7 @@ export default class TestScene extends Scene {
     // ***
 
     update() {
-        if(!this.preloadComplete) return;
+        if(!this.createComplete) return;
         const cursors = this.input.keyboard?.createCursorKeys();
         const spaceKey = this.input.keyboard?.addKey(Input.Keyboard.KeyCodes.SPACE);
         const heroSprite = this.gridEngine.getSprite('hero');
