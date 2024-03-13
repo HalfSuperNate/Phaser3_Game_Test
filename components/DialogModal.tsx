@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 interface DialogModalProps {
     showDialog: boolean;
     onClose: () => void;
-    dialogues: { dialogType: string; message: string }[];
+    dialogues: { dialogType: string; title: string; message: string }[];
     currentDialogueIndex: number; // Add currentDialogueIndex prop
     onNext: () => void;
 }
@@ -37,7 +37,7 @@ const DialogModal: React.FC<DialogModalProps> = ({ showDialog, onClose, dialogue
     return (
         <dialog open={showDialog}>
             <div>
-                <h2>{currentDialogue.dialogType}</h2>
+                <h2>{currentDialogue.title}</h2>
                 <p>{currentDialogue.message}</p>
             </div>
             {currentDialogueIndex < dialogues.length - 1 && ( // Show next button if there are more messages

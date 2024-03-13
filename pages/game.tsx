@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import DialogModal from '../components/DialogModal';
 import EventManager from '../components/EventManager';
+import { Dialogue } from '../utils/dialogues';
 
 //import { Game as GameType } from 'phaser';
 // import GridEngine from 'grid-engine';
 // import isMobile from 'is-mobile';
-
-interface Dialogue {
-    dialogType: string;
-    message: string;
-}
 
 const Game = () => {
     const isDevelopment = process?.env?.NODE_ENV !== 'production';
@@ -97,6 +93,50 @@ const Game = () => {
         };
     }, [initialized]);
 
+    const handleDialogue = (dialogue: Dialogue) => {
+        const eventManager = EventManager.getInstance();
+        // Logic to handle dialogues...
+        switch (true) {
+            case dialogue.dialogType.includes('info'):
+                // info is basic text that doesn't trigger events
+                // same as default
+                console.log('Info dialogue:', dialogue.logID, dialogue.title, dialogue.message);
+                break;
+            case dialogue.dialogType.includes('questStart'):
+                // questStart triggers the start of a quest by ID
+                // the event can trigger a counter for tracking specific quest reqirements 
+                console.log('Start Quest:', dialogue.logID, dialogue.title, dialogue.message);
+                // Emit an event for starting a quest
+                eventManager.emitEvent('questStart', dialogue.logID);
+                break;
+            case dialogue.dialogType.includes('questing'):
+                // questing triggers reminder events for the requirements to complete a quest
+                // the event could also reset a timed quest, escort quest, or lost quest
+                console.log('Quest Reminder:', dialogue.logID, dialogue.title, dialogue.message);
+                // Emit an event for questing
+                eventManager.emitEvent('questing', dialogue.logID);
+                break;
+            case dialogue.dialogType.includes('questEnd'):
+                // questEnd triggers the completion of a quest by ID
+                // the event will remove the quest requirements from inventory
+                // and in return give exp, reward(s), or other
+                console.log('Quest Complete:', dialogue.logID, dialogue.title, dialogue.message);
+                // Emit an event for questing
+                eventManager.emitEvent('questEnd', dialogue.logID);
+                break;
+            case dialogue.dialogType.includes('loot'):
+                // loot triggers the collection of item(s) by container ID
+                // the event will add the items to inventory if there is space
+                // otherwise item(s) return to the container
+                console.log('Loot:', dialogue.logID, dialogue.title, dialogue.message);
+                // Emit an event for looting item(s)
+                eventManager.emitEvent('loot', dialogue.logID);
+                break;
+            default:
+                break;
+        }
+    };
+
     useEffect(() => {
         const eventManager = EventManager.getInstance();
         // Subscribe to the 'openDialog' event
@@ -106,6 +146,7 @@ const Game = () => {
             // Update the dialog content based on the received message
             setDialogues(dialogues);
             setCurrentDialogueIndex(0); // Reset to display the first message
+            handleDialogue(dialogues[0]);
         };
         eventManager.addEventListener('openDialog', openDialogListener);
 
@@ -123,6 +164,7 @@ const Game = () => {
         // Check if there are more dialogues to display
         if (currentDialogueIndex < dialogues.length - 1) {
             setCurrentDialogueIndex(prevIndex => prevIndex + 1);
+            handleDialogue(dialogues[currentDialogueIndex + 1]);
         } else {
             // Close the dialog if all messages have been displayed
             setShowDialog(false);

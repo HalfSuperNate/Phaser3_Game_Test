@@ -2,6 +2,7 @@ import { createInteractiveGameObject } from '../utils/utils';
 import Phaser, { Input, Scene } from 'phaser';
 import EventManager from '../components/EventManager';
 import TotalSupplyFetcher from '../utils/TotalSupplyFetcher';
+import { dialogues } from '../utils/dialogues';
 
 interface MovementEventData {
     direction: string;
@@ -348,12 +349,12 @@ export default class TestScene extends Scene {
                             heroSprite.anims.play(`hero_idle_${facingDirection}`);
                             //console.log('DISPLAY SIGN MESSAGE');
                             // Trigger the dialog when interacting with signs
-                            const dialogues = [
-                                { dialogType: 'Sign Says...', message: 'Hello World' },
-                                { dialogType: 'Sign Says...', message: 'End' },
-                                // Add more dialogues if needed
+                            const _dialogues = [
+                                dialogues[0],
+                                dialogues[1],
+                                dialogues[2]
                             ];
-                            eventManager.emitEvent('openDialog', dialogues);
+                            eventManager.emitEvent('openDialog', _dialogues);
                             this.isDialog = true;
                         } else {
                             this.isDialog = false;

@@ -1,0 +1,44 @@
+About Dialog element
+https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
+
+Phaser Animations
+https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationFrame.html
+https://photonstorm.github.io/phaser3-docs/Phaser.GameObjects.Components.Animation.html#getCurrentKey
+https://newdocs.phaser.io/docs/3.55.2/Phaser.Types.Animations#AnimationFrame
+
+Grid Engine
+https://annoraaq.github.io/grid-engine/examples/random-movement/
+https://github.com/Annoraaq/grid-engine/blob/master/docs/public/example-code/basic-movement/code.js
+https://github.com/Annoraaq/grid-engine/blob/22ce69d/src/GridEngine.ts#L728
+https://annoraaq.github.io/grid-engine/api/classes/GridEngine.html#getTilePosInDirection
+https://github.com/Annoraaq/grid-engine/blob/master/src/Movement/QueueMovement/QueueMovement.ts#L73
+https://annoraaq.github.io/grid-engine/api/interfaces/IGridEngine.html#isTileBlocked
+https://annoraaq.github.io/grid-engine/api/classes/GridEngine.html#moveRandomly
+
+Phaser Game example
+https://github.com/blopa/top-down-react-phaser-game/blob/main/src/App.js#L120
+https://codeworkshop.dev/blog/2020-03-01-creating-an-rpg-dialog-effect-with-react-and-react-spring
+https://pablo.gg/en/blog/coding/creating-a-dialog-box-with-react-for-a-phaser-game/
+https://pablo.gg/en/blog/coding/how-to-create-a-top-down-rpg-maker-like-game-with-phaser-js-and-react/
+https://www.youtube.com/@yxgen4
+
+Phaser
+https://github.com/phaserjs/phaser
+https://phaser.io/learn/community-tutorials?page=2
+
+Wagmi
+https://wagmi.sh/core/api/actions/writeContract
+https://wagmi.sh/react/api/hooks/useWriteContract
+https://wagmi.sh/core/api/actions/readContract
+
+SVGs
+https://css-tricks.com/use-and-reuse-everything-in-svg-even-animations/
+https://svgomg.net/
+
+BID
+https://etherscan.io/address/0xf47cf9514408057dd20034bfa7ae182bd10807e5#code
+https://etherscan.io/unitconverter
+https://etherscan.io/gastracker
+
+Polygon Faucet
+https://www.alchemy.com/faucets/polygon-mumbai
