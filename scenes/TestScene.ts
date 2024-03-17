@@ -69,7 +69,7 @@ export default class TestScene extends Scene {
         this.createAnimation('hero','idle_right',15,15,16,24,-1,true);
         this.createAnimation('hero','idle_down',1,1,16,24,-1,true);
         this.createAnimation('hero','idle_left',43,43,16,24,-1,true);
-        this.createAnimation('hero','show',108,108,16,24,-1,true);
+        this.createAnimation('hero','show',109,109,16,24,-1,true);
         this.createAnimation('heroAtk','attack_down',30,33,32,24,0,false);
         this.createAnimation('heroAtk','attack_left',37,40,32,24,0,false);
         this.createAnimation('heroAtk','attack_up',44,47,32,24,0,false);
@@ -86,10 +86,6 @@ export default class TestScene extends Scene {
         // *** 
 
         //*** CAMERA ***
-        // Follow main character
-        // this.cameras.main.startFollow(currentHeroSprite, true);
-        // this.cameras.main.setFollowOffset(-currentHeroSprite.width, -currentHeroSprite.height);
-
         let isDragging = false;
         let lastPointerPosition: { x: number, y: number } | null = null;
         // Define a variable to track the camera mode
@@ -176,7 +172,7 @@ export default class TestScene extends Scene {
                 }
                 case 'up': {
                     this.heroActionCollider.setX(heroSprite.x);
-                    this.heroActionCollider.setY(heroSprite.y);
+                    this.heroActionCollider.setY(heroSprite.y + 10);
                     break;
                 }
                 case 'left': {
@@ -235,6 +231,7 @@ export default class TestScene extends Scene {
 
         // Define the number of NPCs you want to create
         const numNPCs = this.numNPCs; //171; // totalSupply from contract
+        console.log("Spawned NPCs:", numNPCs);
 
         // Define the NPC sprite configuration (assuming npcSprite is defined elsewhere)
         const npcSpriteConfig = { x: 0, y: 0, texture: 'npc', frame: 1 };
@@ -503,7 +500,7 @@ export default class TestScene extends Scene {
                 currentHeroSprite = heroAtkSprite;
                 heroSprite.anims.play(`heroAtk_attack_${currentDirection}`);
                 this.isAttacking = true;
-                this.time.delayedCall(50, () => {
+                this.time.delayedCall(150, () => {
                     currentHeroSprite = heroSprite;
                     if (this.isMoving) {
                         heroSprite.anims.play(`hero_${currentDirection}`);
