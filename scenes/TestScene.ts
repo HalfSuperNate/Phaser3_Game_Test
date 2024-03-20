@@ -44,7 +44,6 @@ export default class TestScene extends Scene {
         let currentHeroSprite: Phaser.Physics.Arcade.Sprite;
         const heroSprite = this.physics.add.sprite(0, 0, 'hero', 1);
         currentHeroSprite = heroSprite;
-        const heroAtkSprite = this.physics.add.sprite(-10, -10, 'heroAtk', 34);
         const npcSprite = this.physics.add.sprite(0, 0, 'npc', 1);
 
         map.layers.forEach((layer, index) => {
@@ -61,28 +60,28 @@ export default class TestScene extends Scene {
 
         // *** Character Animations
         // hero
-        this.createAnimation('hero','up',30,32,16,24,-1,true);
-        this.createAnimation('hero','right',16,18,16,24,-1,true);
-        this.createAnimation('hero','down',2,4,16,24,-1,true);
-        this.createAnimation('hero','left',44,46,16,24,-1,true);
-        this.createAnimation('hero','idle_up',29,29,16,24,-1,true);
-        this.createAnimation('hero','idle_right',15,15,16,24,-1,true);
-        this.createAnimation('hero','idle_down',1,1,16,24,-1,true);
-        this.createAnimation('hero','idle_left',43,43,16,24,-1,true);
-        this.createAnimation('hero','show',109,109,16,24,-1,true);
-        this.createAnimation('heroAtk','attack_down',30,33,32,24,0,false);
-        this.createAnimation('heroAtk','attack_left',37,40,32,24,0,false);
-        this.createAnimation('heroAtk','attack_up',44,47,32,24,0,false);
-        this.createAnimation('heroAtk','attack_right',51,54,32,24,0,false);
+        this.createAnimation('hero','up',11,14,32,24,-1,true);
+        this.createAnimation('hero','right',6,9,32,24,-1,true);
+        this.createAnimation('hero','down',1,4,32,24,-1,true);
+        this.createAnimation('hero','left',16,19,32,24,-1,true);
+        this.createAnimation('hero','idle_up',11,11,32,24,-1,true);
+        this.createAnimation('hero','idle_right',6,6,32,24,-1,true);
+        this.createAnimation('hero','idle_down',1,1,32,24,-1,true);
+        this.createAnimation('hero','idle_left',16,16,32,24,-1,true);
+        this.createAnimation('hero','show',81,81,32,24,-1,true);
+        this.createAnimation('hero','attack_down',21,24,32,24,0,false);
+        this.createAnimation('hero','attack_left',26,29,32,24,0,false);
+        this.createAnimation('hero','attack_up',31,34,32,24,0,false);
+        this.createAnimation('hero','attack_right',36,39,32,24,0,false);
         //npc
-        this.createAnimation('npc','up',30,32,16,24,-1,true);
-        this.createAnimation('npc','right',16,18,16,24,-1,true);
-        this.createAnimation('npc','down',2,4,16,24,-1,true);
-        this.createAnimation('npc','left',44,46,16,24,-1,true);
-        this.createAnimation('npc','idle_up',29,29,16,24,-1,true);
-        this.createAnimation('npc','idle_right',15,15,16,24,-1,true);
-        this.createAnimation('npc','idle_down',1,1,16,24,-1,true);
-        this.createAnimation('npc','idle_left',43,43,16,24,-1,true);
+        this.createAnimation('npc','up',11,14,32,24,-1,true);
+        this.createAnimation('npc','right',6,9,32,24,-1,true);
+        this.createAnimation('npc','down',1,4,32,24,-1,true);
+        this.createAnimation('npc','left',16,19,32,24,-1,true);
+        this.createAnimation('npc','idle_up',11,11,32,24,-1,true);
+        this.createAnimation('npc','idle_right',6,6,32,24,-1,true);
+        this.createAnimation('npc','idle_down',1,1,32,24,-1,true);
+        this.createAnimation('npc','idle_left',16,16,32,24,-1,true);
         // *** 
 
         //*** CAMERA ***
@@ -166,17 +165,17 @@ export default class TestScene extends Scene {
 
             switch (facingDirection) {
                 case 'down': {
-                    this.heroActionCollider.setX(heroSprite.x);
-                    this.heroActionCollider.setY(heroSprite.y + 40);
+                    this.heroActionCollider.setX(heroSprite.x + 10);
+                    this.heroActionCollider.setY(heroSprite.y + 35);
                     break;
                 }
                 case 'up': {
-                    this.heroActionCollider.setX(heroSprite.x);
+                    this.heroActionCollider.setX(heroSprite.x + 10);
                     this.heroActionCollider.setY(heroSprite.y + 10);
                     break;
                 }
                 case 'left': {
-                    this.heroActionCollider.setX(heroSprite.x - 16);
+                    this.heroActionCollider.setX(heroSprite.x);
                     this.heroActionCollider.setY(heroSprite.y + 24);
                     break;
                 }
@@ -205,12 +204,6 @@ export default class TestScene extends Scene {
                     sprite: npcSprite,
                     startPosition: { x: 0, y: 11 },
                     speed: 1.5,
-                },
-                {
-                    id: 'heroAtk',
-                    sprite: heroAtkSprite,
-                    startPosition: { x: -10, y: -10 },
-                    speed: 0,
                 }
             ]
         };
@@ -416,11 +409,9 @@ export default class TestScene extends Scene {
             this.inputPressed();
             if (data.direction === 'attack') {
                 const currentDirection = this.gridEngine.getFacingDirection('hero');
-                currentHeroSprite = heroAtkSprite;
-                heroSprite.anims.play(`heroAtk_attack_${currentDirection}`);
+                heroSprite.anims.play(`hero_attack_${currentDirection}`);
                 this.isAttacking = true;
-                this.time.delayedCall(50, () => {
-                    currentHeroSprite = heroSprite;
+                this.time.delayedCall(500, () => {
                     if (this.isMoving) {
                         heroSprite.anims.play(`hero_${currentDirection}`);
                     } else {
@@ -462,6 +453,11 @@ export default class TestScene extends Scene {
         yoyo: boolean
     ) {
         const frames = [];
+        let _frameRate = 4;
+        if (name.includes('attack')){
+            // attack anim speed
+            _frameRate = 12;
+        }
 
         for (let i = startFrame; i <= endFrame; i++) {
             frames.push({
@@ -476,7 +472,7 @@ export default class TestScene extends Scene {
         this.anims.create({
           key: `${spriteSheet}_${name}`,
           frames: frames,
-          frameRate: 4,
+          frameRate: _frameRate,
           repeat: repeat, // -1 for infinite
           yoyo: yoyo,
         });
@@ -488,20 +484,15 @@ export default class TestScene extends Scene {
         const cursors = this.input.keyboard?.createCursorKeys();
         const spaceKey = this.input.keyboard?.addKey(Input.Keyboard.KeyCodes.SPACE);
         const heroSprite = this.gridEngine.getSprite('hero');
-        const heroAtkSprite = this.gridEngine.getSprite('heroAtk');
-
         const currentDirection = this.gridEngine.getFacingDirection('hero');
         this.heroActionCollider.update();
-        let currentHeroSprite: Phaser.Physics.Arcade.Sprite = this.isAttacking ? heroAtkSprite : heroSprite;
 
         if (cursors && spaceKey) {
             if (Input.Keyboard.JustDown(spaceKey)) {
                 this.inputPressed();
-                currentHeroSprite = heroAtkSprite;
-                heroSprite.anims.play(`heroAtk_attack_${currentDirection}`);
+                heroSprite.anims.play(`hero_attack_${currentDirection}`);
                 this.isAttacking = true;
-                this.time.delayedCall(150, () => {
-                    currentHeroSprite = heroSprite;
+                this.time.delayedCall(500, () => {
                     if (this.isMoving) {
                         heroSprite.anims.play(`hero_${currentDirection}`);
                     } else {
