@@ -16,6 +16,7 @@ export default class TestScene extends Scene {
     private lastKeyPressTime: number = 0; // Track the time of the last key press
     private heroActionCollider!: Phaser.GameObjects.Rectangle;
     private numNPCs: number = 0;
+    private initData: any;
 
     constructor() {
         super('testscene');
@@ -26,6 +27,63 @@ export default class TestScene extends Scene {
     isAttacking = false;
     isMoving = false;
     isDialog = false;
+    isTeleporting = false;
+
+    init(data: any) {
+        if (data.mapKey) {
+            this.initData = data;
+        } else {
+            const newGameState = {
+                position: { x: 8, y: 4},
+                mapKey: 'testmap'
+            };
+
+            this.initData = newGameState;
+        }
+        
+    }
+
+    calculatePreviousTeleportPosition() {
+        const currentPosition = this.gridEngine.getPosition('hero');
+        const facingDirection = this.gridEngine.getFacingDirection('hero');
+
+        switch (facingDirection) {
+            case 'up': {
+                return {
+                    x: currentPosition.x,
+                    y: currentPosition.y + 1,
+                };
+            }
+
+            case 'right': {
+                return {
+                    x: currentPosition.x - 1,
+                    y: currentPosition.y,
+                };
+            }
+
+            case 'down': {
+                return {
+                    x: currentPosition.x,
+                    y: currentPosition.y - 1,
+                };
+            }
+
+            case 'left': {
+                return {
+                    x: currentPosition.x + 1,
+                    y: currentPosition.y,
+                };
+            }
+
+            default: {
+                return {
+                    x: currentPosition.x,
+                    y: currentPosition.y,
+                };
+            }
+        }
+    }
 
     async preload() {
         // Preload assets for splash and title screens
@@ -35,10 +93,12 @@ export default class TestScene extends Scene {
     async create() {
         await this.preload();
         const isDebugMode = this.physics.config.debug;
+        //const { heroStatus, mapKey } = this.initData;
+        const { mapKey } = this.initData;
         // Set up flag to track initialization status
         let isGridEngineInitialized = false;
         const interactiveLayers = this.add.group();
-        const map = this.make.tilemap({ key: 'testmap' });
+        const map = this.make.tilemap({ key: mapKey });
         map.addTilesetImage('ZeldaLike', 'tiles');
 
         let currentHeroSprite: Phaser.Physics.Arcade.Sprite;
@@ -60,28 +120,42 @@ export default class TestScene extends Scene {
 
         // *** Character Animations
         // hero
-        this.createAnimation('hero','up',11,14,32,24,-1,true);
-        this.createAnimation('hero','right',6,9,32,24,-1,true);
-        this.createAnimation('hero','down',1,4,32,24,-1,true);
-        this.createAnimation('hero','left',16,19,32,24,-1,true);
-        this.createAnimation('hero','idle_up',11,11,32,24,-1,true);
-        this.createAnimation('hero','idle_right',6,6,32,24,-1,true);
-        this.createAnimation('hero','idle_down',1,1,32,24,-1,true);
-        this.createAnimation('hero','idle_left',16,16,32,24,-1,true);
-        this.createAnimation('hero','show',81,81,32,24,-1,true);
-        this.createAnimation('hero','attack_down',21,24,32,24,0,false);
-        this.createAnimation('hero','attack_left',26,29,32,24,0,false);
-        this.createAnimation('hero','attack_up',31,34,32,24,0,false);
-        this.createAnimation('hero','attack_right',36,39,32,24,0,false);
+        // this.createAnimation('hero','up',11,14,32,24,-1,true);
+        // this.createAnimation('hero','right',6,9,32,24,-1,true);
+        // this.createAnimation('hero','down',1,4,32,24,-1,true);
+        // this.createAnimation('hero','left',16,19,32,24,-1,true);
+        // this.createAnimation('hero','idle_up',11,11,32,24,-1,true);
+        // this.createAnimation('hero','idle_right',6,6,32,24,-1,true);
+        // this.createAnimation('hero','idle_down',1,1,32,24,-1,true);
+        // this.createAnimation('hero','idle_left',16,16,32,24,-1,true);
+        // this.createAnimation('hero','show',81,81,32,24,-1,true);
+        // this.createAnimation('hero','attack_down',21,24,32,24,0,false);
+        // this.createAnimation('hero','attack_left',26,29,32,24,0,false);
+        // this.createAnimation('hero','attack_up',31,34,32,24,0,false);
+        // this.createAnimation('hero','attack_right',36,39,32,24,0,false);
+        // hero2
+        this.createAnimation('hero','up',46,53,32,32,-1,false,6);
+        this.createAnimation('hero','right',55,62,32,32,-1,false,6);
+        this.createAnimation('hero','down',37,44,32,32,-1,false,6);
+        this.createAnimation('hero','left',64,71,32,32,-1,false,6);
+        this.createAnimation('hero','idle_up',10,13,32,32,-1,false,4);
+        this.createAnimation('hero','idle_right',19,22,32,32,-1,false,4);
+        this.createAnimation('hero','idle_down',1,4,32,32,-1,false,4);
+        this.createAnimation('hero','idle_left',28,31,32,32,-1,false,4);
+        this.createAnimation('hero','show',6,6,32,32,-1,false,1);
+        this.createAnimation('hero','attack_down',38,40,32,32,0,false,12);
+        this.createAnimation('hero','attack_left',65,67,32,32,0,false,12);
+        this.createAnimation('hero','attack_up',47,49,32,32,0,false,12);
+        this.createAnimation('hero','attack_right',56,58,32,32,0,false,12);
         //npc
-        this.createAnimation('npc','up',11,14,32,24,-1,true);
-        this.createAnimation('npc','right',6,9,32,24,-1,true);
-        this.createAnimation('npc','down',1,4,32,24,-1,true);
-        this.createAnimation('npc','left',16,19,32,24,-1,true);
-        this.createAnimation('npc','idle_up',11,11,32,24,-1,true);
-        this.createAnimation('npc','idle_right',6,6,32,24,-1,true);
-        this.createAnimation('npc','idle_down',1,1,32,24,-1,true);
-        this.createAnimation('npc','idle_left',16,16,32,24,-1,true);
+        this.createAnimation('npc','up',11,14,32,24,-1,true,4);
+        this.createAnimation('npc','right',6,9,32,24,-1,true,4);
+        this.createAnimation('npc','down',1,4,32,24,-1,true,4);
+        this.createAnimation('npc','left',16,19,32,24,-1,true,4);
+        this.createAnimation('npc','idle_up',11,11,32,24,-1,true,4);
+        this.createAnimation('npc','idle_right',6,6,32,24,-1,true,4);
+        this.createAnimation('npc','idle_down',1,1,32,24,-1,true,4);
+        this.createAnimation('npc','idle_left',16,16,32,24,-1,true,4);
         // *** 
 
         //*** CAMERA ***
@@ -165,23 +239,23 @@ export default class TestScene extends Scene {
 
             switch (facingDirection) {
                 case 'down': {
-                    this.heroActionCollider.setX(heroSprite.x + 10);
+                    this.heroActionCollider.setX(heroSprite.x + 8);
                     this.heroActionCollider.setY(heroSprite.y + 35);
                     break;
                 }
                 case 'up': {
-                    this.heroActionCollider.setX(heroSprite.x + 10);
+                    this.heroActionCollider.setX(heroSprite.x + 8);
                     this.heroActionCollider.setY(heroSprite.y + 10);
                     break;
                 }
                 case 'left': {
                     this.heroActionCollider.setX(heroSprite.x);
-                    this.heroActionCollider.setY(heroSprite.y + 24);
+                    this.heroActionCollider.setY(heroSprite.y + 32);
                     break;
                 }
                 case 'right': {
                     this.heroActionCollider.setX(heroSprite.x + 16);
-                    this.heroActionCollider.setY(heroSprite.y + 24);
+                    this.heroActionCollider.setY(heroSprite.y + 32);
                     break;
                 }
             
@@ -197,9 +271,9 @@ export default class TestScene extends Scene {
                 {
                     id: 'hero',
                     sprite: currentHeroSprite,
-                    startPosition: { x: 8, y: 8 }
-                },
-                {
+                    startPosition: this.initData.position
+                }
+                ,{
                     id: 'npc0',
                     sprite: npcSprite,
                     startPosition: { x: 0, y: 11 },
@@ -296,7 +370,7 @@ export default class TestScene extends Scene {
             if (charId === 'hero') {
                 this.isMoving = false;
                 heroSprite.anims.play(`hero_idle_${direction}`);
-                heroSprite.anims.stop();
+                //heroSprite.anims.stop();
             } else {
                 let _sprite = this.gridEngine.getSprite(charId);
                 if (charId.includes('npc')){
@@ -377,6 +451,82 @@ export default class TestScene extends Scene {
             this // overlapCallbackContext, set to 'this' to use the current scene as the context for the callback
         );
 
+        // handle scene or map change logic
+        const transportationLayer = map.getObjectLayer("transportation")?.objects;
+        if (transportationLayer) {
+            for (const teleportationTile of transportationLayer) {
+                const { x, y, properties } = teleportationTile;
+                let mapToLoad = '';
+                let tileSetImage = '';
+                let spawnX = 0;
+                let spawnY = 0;
+                for (const property of properties) {
+                    if (property.name === 'mapToLoad') {
+                        mapToLoad = property.value;
+                    }
+                    if (property.name === 'tileSetImage') {
+                        tileSetImage = property.value;
+                    }
+                    if (property.name === 'spawnX') {
+                        spawnX = property.value;
+                    }
+                    if (property.name === 'spawnY') {
+                        spawnY = property.value;
+                    }
+                }
+                const xCoord = teleportationTile.x ?? 0;
+                const yCoord = teleportationTile.y ?? 0;
+                const SCENE_FADE_TIME = 300;
+
+                const customCollider = createInteractiveGameObject(
+                    this,
+                    xCoord,
+                    yCoord,
+                    16,
+                    16,
+                    'teleport'
+                );
+
+                const overlapCollider = this.physics.add.overlap(
+                    heroSprite,
+                    customCollider,
+                    () => {
+                        const teleportToX = Math.round(spawnX / 16);
+                        const teleportToY = Math.round(spawnY / 16);
+                        this.physics.world.removeCollider(overlapCollider);
+                        const facingDirection = this.gridEngine.getFacingDirection('hero');
+                        this.cameras.main.fadeOut(SCENE_FADE_TIME);
+                        this.isTeleporting = true;
+
+                        const newGameState = {
+                            position: { x: teleportToX, y: teleportToY},
+                            //previousMapPosition: this.calculatePreviousTeleportPosition(),
+                            //health: heroSprite.health,
+                            //coins: heroSprite.coins,
+                            //previousPosition: this.calculatePreviousTeleortPosition(),
+                            //frame: `walking-${facingDirection}-0.png`,
+                            facingDirection: facingDirection,
+                            mapKey: mapToLoad,
+                            //tileSetImage
+                        };
+
+                        eventManager.emitEvent('update-game-state', { ...newGameState });
+
+                        this.time.delayedCall(SCENE_FADE_TIME, () => {
+                            this.isTeleporting = false;
+                            this.scene.restart({
+                                //user: { level, experience },
+                                gameState: {
+                                    ...newGameState
+                                }
+                            });
+                        });
+                    }
+                );
+            }
+        }
+        
+
         // Function to handle random movement
         const handleRandomMovement = () => {
             if (!isGridEngineInitialized) return;
@@ -450,14 +600,15 @@ export default class TestScene extends Scene {
         frameWidth: number,
         frameHeight: number,
         repeat: number,
-        yoyo: boolean
+        yoyo: boolean,
+        frameR: number,
     ) {
         const frames = [];
-        let _frameRate = 4;
-        if (name.includes('attack')){
-            // attack anim speed
-            _frameRate = 12;
-        }
+        let _frameRate = frameR;
+        // if (name.includes('attack')){
+        //     // attack anim speed
+        //     _frameRate = 12;
+        // }
 
         for (let i = startFrame; i <= endFrame; i++) {
             frames.push({

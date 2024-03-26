@@ -26,6 +26,17 @@ Phaser
 https://github.com/phaserjs/phaser
 https://phaser.io/learn/community-tutorials?page=2
 
+LPC (character spritesheet examples)
+https://opengameart.org/content/lpc-revised-character-basics
+https://github.com/ElizaWy/LPC/tree/main
+
+Character Asset Packs
+https://shubibubi.itch.io/cozy-people
+https://sagak-art-pururu.itch.io/24pxminicharacters
+https://jik-a-4.itch.io/metrocity-free-topdown-character-pack
+https://chocolate4.itch.io/thatcoolsprite
+https://limezu.itch.io/moderninteriors
+
 Wagmi
 https://wagmi.sh/core/api/actions/writeContract
 https://wagmi.sh/react/api/hooks/useWriteContract

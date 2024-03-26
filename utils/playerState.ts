@@ -1,5 +1,12 @@
 import Inventory, { Item } from './inventory';
 
+interface PlayerPosition {
+    position: {x: number, y: number};
+    facingDirection: string;
+    map: string;
+    //tiles: string;
+}
+
 interface PlayerStats {
     health: number;
     attack: number;
@@ -13,13 +20,20 @@ interface GameProgression {
 }
 
 class PlayerState extends Inventory {
+    private playerPosition: PlayerPosition;
     private stats: PlayerStats;
     private progression: GameProgression;
 
     constructor() {
         super();
+        this.playerPosition = { position: {x: 0, y:0}, facingDirection: 'down', map: 'testmap' };
         this.stats = { health: 100, attack: 10, defense: 5 };
         this.progression = { completedQuests: 0, currentLevel: 1 };
+    }
+
+    // Methods to update player position
+    updatePlayerPosition(newPlayerPosition: Partial<PlayerPosition>): void {
+        this.playerPosition = { ...this.playerPosition, ...newPlayerPosition };
     }
 
     // Methods to update player stats
@@ -61,12 +75,14 @@ class PlayerState extends Inventory {
             const jsonData = await response.json();
 
             // Extract player state data from JSON
+            const playerPosition: PlayerPosition = jsonData.playerPosition;
             const stats: PlayerStats = jsonData.stats;
             const progression: GameProgression = jsonData.progression;
             const inventory: Item[] = jsonData.inventory; // Assuming inventory data is present in JSON
 
             // Create a new PlayerState object and set its properties
             const playerState = new PlayerState();
+            playerState.playerPosition = playerPosition;
             playerState.stats = stats;
             playerState.progression = progression;
             playerState.setItems(inventory); // Assuming a method to set inventory items exists
