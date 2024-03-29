@@ -287,7 +287,7 @@ export default class TestScene extends Scene {
         const npcSprites: Phaser.Physics.Arcade.Sprite[] = [];
 
         // Listen for the totalSupplyFetched event
-        EventManager.getInstance().addEventListener('totalSupplyFetched', (totalSupply: number) => {
+        eventManager.addEventListener('totalSupplyFetched', (totalSupply: number) => {
             //console.log('Total supply fetched:', totalSupply);
             // Handle the total supply data here, e.g., store it in a variable or use it in your scene
             this.numNPCs = totalSupply;
@@ -420,9 +420,8 @@ export default class TestScene extends Scene {
                             ];
                             eventManager.emitEvent('openDialog', _dialogues);
                             this.isDialog = true;
-                        } else {
-                            this.isDialog = false;
                         }
+                        console.log("isDialog", this.isDialog);
                         break;
                     }
                     default: {
@@ -530,6 +529,10 @@ export default class TestScene extends Scene {
         // Function to handle random movement
         const handleRandomMovement = () => {
             if (!isGridEngineInitialized) return;
+            if (this.isDialog) {
+                this.inputPressed();
+                return;
+            }
 
             const currentTime = Date.now();
             const numOfMoves = 5;
@@ -588,6 +591,12 @@ export default class TestScene extends Scene {
             });      
         });
 
+        // Subscribe to the 'openDialog' event
+        const isShowingDialogListener = (isShowingDialog: boolean) => {
+            this.isDialog = isShowingDialog;
+        };
+        eventManager.addEventListener('isShowingDialog', isShowingDialogListener);
+
         this.createComplete = true;
     }
 
@@ -631,7 +640,11 @@ export default class TestScene extends Scene {
     // ***
 
     update() {
-        if(!this.createComplete) return;
+        if(!this.createComplete 
+            || this.isTeleporting
+            || this.isAttacking
+            || this.isDialog
+        ) return;
         const cursors = this.input.keyboard?.createCursorKeys();
         const spaceKey = this.input.keyboard?.addKey(Input.Keyboard.KeyCodes.SPACE);
         const heroSprite = this.gridEngine.getSprite('hero');

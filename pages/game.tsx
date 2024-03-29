@@ -158,6 +158,8 @@ const Game = () => {
     
     const handleCloseDialog = () => {
         setShowDialog(false);
+        const eventManager = EventManager.getInstance();
+        eventManager.emitEvent('isShowingDialog', false);
     };
 
     const handleNextDialogue = () => {
