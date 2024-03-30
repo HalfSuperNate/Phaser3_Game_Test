@@ -109,7 +109,7 @@ export default class TestScene extends Scene {
         map.layers.forEach((layer, index) => {
             const mapLayer = map.createLayer(index, 'ZeldaLike', 0, 0);
             if (mapLayer) {
-                if (layer.name == 'bushes' || layer.name == 'boxes'|| layer.name == 'signs') {
+                if (layer.name == 'bushes' || layer.name == 'boxes'|| layer.name == 'signs' || layer.name.includes('signs')) {
                     interactiveLayers.add(mapLayer);
                 }
                 this.physics.add.collider(heroSprite, mapLayer);
@@ -396,7 +396,13 @@ export default class TestScene extends Scene {
         // Helper function to handle interaction logic
         const handleInteraction = (tile: Phaser.Tilemaps.Tile | Phaser.Physics.Arcade.Sprite) => {
             if (tile instanceof Phaser.Tilemaps.Tile) {
-                switch (tile.layer?.name) {
+                let pickedLayer = "";
+                if (tile.layer.name.includes('bushes')) {
+                    pickedLayer = "bushes";
+                } else if (tile.layer.name.includes('signs')) {
+                    pickedLayer = "signs";
+                }
+                switch (pickedLayer) {
                     case 'bushes': {
                         if (this.isAttacking) {
                             this.time.delayedCall(50, () => {
@@ -412,12 +418,19 @@ export default class TestScene extends Scene {
                             const facingDirection = this.gridEngine.getFacingDirection('hero')
                             heroSprite.anims.play(`hero_idle_${facingDirection}`);
                             //console.log('DISPLAY SIGN MESSAGE');
+                            let _dialogues = [];
+                            let signDialogData = tile.layer.name.split(':');
+                            for (let i = 0; i < signDialogData.length; i++) {
+                                if (i != 0) {
+                                    _dialogues.push(dialogues[parseInt(signDialogData[i])]);
+                                }
+                            }
                             // Trigger the dialog when interacting with signs
-                            const _dialogues = [
-                                dialogues[0],
-                                dialogues[1],
-                                dialogues[2]
-                            ];
+                            // const _dialogues = [
+                            //     dialogues[0],
+                            //     dialogues[1],
+                            //     dialogues[2]
+                            // ];
                             eventManager.emitEvent('openDialog', _dialogues);
                             this.isDialog = true;
                         }
