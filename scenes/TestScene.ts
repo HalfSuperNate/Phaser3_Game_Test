@@ -3,9 +3,17 @@ import Phaser, { Input, Scene } from 'phaser';
 import EventManager from '../components/EventManager';
 import TotalSupplyFetcher from '../utils/TotalSupplyFetcher';
 import { dialogues } from '../utils/dialogues';
+import { from } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 interface MovementEventData {
     direction: string;
+}
+
+interface MoveToData {
+    spriteName: string;
+    xPos: number;
+    yPos: number;
 }
 
 const eventManager = EventManager.getInstance();
@@ -231,7 +239,7 @@ export default class TestScene extends Scene {
             16,
             16,
             'action',
-            isDebugMode
+            false//isDebugMode
         );
 
         this.heroActionCollider.update = () => {
@@ -239,23 +247,23 @@ export default class TestScene extends Scene {
 
             switch (facingDirection) {
                 case 'down': {
-                    this.heroActionCollider.setX(heroSprite.x + 8);
-                    this.heroActionCollider.setY(heroSprite.y + 35);
+                    this.heroActionCollider.setX(currentHeroSprite.x + 8);
+                    this.heroActionCollider.setY(currentHeroSprite.y + 35);
                     break;
                 }
                 case 'up': {
-                    this.heroActionCollider.setX(heroSprite.x + 8);
-                    this.heroActionCollider.setY(heroSprite.y + 10);
+                    this.heroActionCollider.setX(currentHeroSprite.x + 8);
+                    this.heroActionCollider.setY(currentHeroSprite.y + 10);
                     break;
                 }
                 case 'left': {
-                    this.heroActionCollider.setX(heroSprite.x);
-                    this.heroActionCollider.setY(heroSprite.y + 32);
+                    this.heroActionCollider.setX(currentHeroSprite.x);
+                    this.heroActionCollider.setY(currentHeroSprite.y + 32);
                     break;
                 }
                 case 'right': {
-                    this.heroActionCollider.setX(heroSprite.x + 16);
-                    this.heroActionCollider.setY(heroSprite.y + 32);
+                    this.heroActionCollider.setX(currentHeroSprite.x + 16);
+                    this.heroActionCollider.setY(currentHeroSprite.y + 32);
                     break;
                 }
             
@@ -266,16 +274,25 @@ export default class TestScene extends Scene {
         };
         //*** MAIN CHARACTER COLLIDER END ***
 
+        //*** CHARACTER TOP ID LABEL ***
+        const text = this.add.text(4, -10, "0000");
+        text.setColor("#252525");
+        text.setFontSize("10px");
+        const container = this.add.container(0, 0, [currentHeroSprite, this.heroActionCollider, text]);
+        //*** CHARACTER TOP LABEL END ***
+
         let gridEngineConfig = {
             characters: [
                 {
                     id: 'hero',
                     sprite: currentHeroSprite,
+                    container,
                     startPosition: this.initData.position
                 }
                 ,{
                     id: 'npc0',
                     sprite: npcSprite,
+                    container,
                     startPosition: { x: 0, y: 11 },
                     speed: 1.5,
                 }
@@ -297,7 +314,7 @@ export default class TestScene extends Scene {
         await TotalSupplyFetcher.fetchTotalSupply();
 
         // Define the number of NPCs you want to create
-        const numNPCs = this.numNPCs; //171; // totalSupply from contract
+        const numNPCs = this.numNPCs; // totalSupply from contract
         console.log("Spawned NPCs:", numNPCs);
 
         // Define the NPC sprite configuration (assuming npcSprite is defined elsewhere)
@@ -336,10 +353,19 @@ export default class TestScene extends Scene {
                 Y = 16;
             }
 
+            //*** NPC TOP ID LABEL ***
+            let _NPCID = this.padZeros(i, 4);
+            let _text = this.add.text(4, -10, _NPCID);
+            _text.setColor("#252525");
+            _text.setFontSize("10px");
+            let _container = this.add.container(0, 0, [npcSprite, _text]);
+            //*** NPC TOP LABEL END ***
+
             // Add the NPC sprite to the grid engine configuration or handle its behavior
             gridEngineConfig.characters.push({
                 id: `npc${i}`, // Unique ID for the NPC
                 sprite: npcSprite,
+                container: _container,
                 startPosition: { x: X, y: Y },
                 speed: 1.5,
                 // Add any other properties or configurations needed for the NPC
@@ -347,7 +373,7 @@ export default class TestScene extends Scene {
         }
 
         this.gridEngine.create(map, gridEngineConfig);
-        for (let i = 1; i < numNPCs; i++) {
+        for (let i = 0; i < numNPCs; i++) {
             this.gridEngine.moveRandomly(`npc${i}`, random.integerInRange(500, 1500)); // Move NPC randomly
         }
         //this.gridEngine.moveRandomly('npc0', 1500); // original NPC
@@ -609,7 +635,13 @@ export default class TestScene extends Scene {
             this.isDialog = isShowingDialog;
         };
         eventManager.addEventListener('isShowingDialog', isShowingDialogListener);
-
+        
+        const spriteMoveToListener = (data: MoveToData) => {
+            //console.log(data);
+            this.spriteMoveTo(data.spriteName, data.xPos, data.yPos);
+        };
+        eventManager.addEventListener('spriteMoveToEvent', spriteMoveToListener);
+        
         this.createComplete = true;
     }
 
@@ -730,10 +762,53 @@ export default class TestScene extends Scene {
         this.gridEngine.setSpeed('hero', 4);
     }
 
+    private async spriteMoveTo(spriteName: string, xPos: number, yPos: number) {
+        console.log('Sprite Object:', spriteName);
+
+        // Check if the spriteName exists in the gridEngineConfig
+        try {
+            const spriteExists = !!this.gridEngine.getSprite(spriteName);
+        } catch (error) {
+            console.error(`Sprite ${spriteName} does not exist in the gridEngineConfig.`);
+            alert(`Sprite ${spriteName} does not exist in the gridEngineConfig.`);
+            return;
+        }
+    
+        // Convert Observable to Promise
+        const movePromise = from(this.gridEngine.moveTo(spriteName, { x: xPos, y: yPos }, {
+            noPathFoundMaxRetries: 3,
+            noPathFoundRetryBackoffMs: 200,
+            noPathFoundStrategy: "CLOSEST_REACHABLE",
+            pathBlockedStrategy: "RETRY",
+        })).toPromise();
+    
+        try {
+            // Wait for the moveTo operation to complete
+            await movePromise;
+            console.log(`Sprite ${spriteName} reached destination at (${xPos}, ${yPos})`);
+            this.time.delayedCall(5000, () => {
+                //wait 5 sec
+                // Once movement is complete, resume random movement
+                this.gridEngine.moveRandomly(spriteName, random.integerInRange(500, 1500));
+            });
+        } catch (error) {
+            console.error('Error while moving sprite:', error);
+        }
+    }
+
     // Random direction generator
     private getRandomDirection() {
         const directions = ['up', 'down', 'left', 'right', 'wait'];
         const randomIndex = Phaser.Math.Between(0, directions.length - 1);
         return directions[randomIndex];
+    }
+
+    private padZeros(number: number, length: number): string {
+        let str = number.toString();
+        const zerosToAdd = length - str.length;
+        if (zerosToAdd > 0) {
+            str = '0'.repeat(zerosToAdd) + str;
+        }
+        return str;
     }
 }

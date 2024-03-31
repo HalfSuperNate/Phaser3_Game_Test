@@ -15,6 +15,19 @@ const Game = () => {
     // Define state variables for dialog type and message
     const [dialogues, setDialogues] = useState<Dialogue[]>([]);
     const [currentDialogueIndex, setCurrentDialogueIndex] = useState(0);
+    const [formData, setFormData] = useState({
+        name: '',
+        xPosition: '',
+        yPosition: ''
+    });
+
+    const handleInputChange = (e: any) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
 
     // Create game inside useEffect once
     // ^ only once
@@ -235,6 +248,7 @@ const Game = () => {
             <button onClick={() => handleButtonClick('movement', { direction: 'toggleCameraMode' })}>
                 Toggle Camera Mode
             </button>
+            <br />
             <div style={{ textAlign: 'center' }}>
                 <div style={{ display: 'inline-block' }}>
                     <button 
@@ -274,6 +288,44 @@ const Game = () => {
                     <button onClick={() => handleButtonClick('movement', { direction: 'attack' })}>🗡️</button>
                 </div>
             </div>
+            <br />
+            <div>
+            <div className="input-group">
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    placeholder="npc1 for 0001"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                />
+            </div>
+
+            <div className="input-group">
+                <input 
+                    type="number" 
+                    id="xPosition" 
+                    name="xPosition" 
+                    placeholder="X Position"
+                    value={formData.xPosition}
+                    onChange={handleInputChange}
+                />
+            </div>
+
+            <div className="input-group">
+                <input 
+                    type="number" 
+                    id="yPosition" 
+                    name="yPosition" 
+                    placeholder="Y Position"
+                    value={formData.yPosition}
+                    onChange={handleInputChange}
+                />
+            </div>
+
+            <button onClick={() => handleButtonClick('spriteMoveToEvent', { spriteName: formData.name, xPos: formData.xPosition, yPos: formData.yPosition })}>Move Sprite To</button>
+
+        </div>
         </>
     )
 }
