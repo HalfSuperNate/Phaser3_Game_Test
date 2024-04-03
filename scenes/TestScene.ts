@@ -128,42 +128,14 @@ export default class TestScene extends Scene {
 
         // *** Character Animations
         // hero
-        // this.createAnimation('hero','up',11,14,32,24,-1,true);
-        // this.createAnimation('hero','right',6,9,32,24,-1,true);
-        // this.createAnimation('hero','down',1,4,32,24,-1,true);
-        // this.createAnimation('hero','left',16,19,32,24,-1,true);
-        // this.createAnimation('hero','idle_up',11,11,32,24,-1,true);
-        // this.createAnimation('hero','idle_right',6,6,32,24,-1,true);
-        // this.createAnimation('hero','idle_down',1,1,32,24,-1,true);
-        // this.createAnimation('hero','idle_left',16,16,32,24,-1,true);
-        // this.createAnimation('hero','show',81,81,32,24,-1,true);
-        // this.createAnimation('hero','attack_down',21,24,32,24,0,false);
-        // this.createAnimation('hero','attack_left',26,29,32,24,0,false);
-        // this.createAnimation('hero','attack_up',31,34,32,24,0,false);
-        // this.createAnimation('hero','attack_right',36,39,32,24,0,false);
+        //this.oldNPCconfigAnimation('hero');
         // hero2
-        this.createAnimation('hero','up',46,53,32,32,-1,false,6);
-        this.createAnimation('hero','right',55,62,32,32,-1,false,6);
-        this.createAnimation('hero','down',37,44,32,32,-1,false,6);
-        this.createAnimation('hero','left',64,71,32,32,-1,false,6);
-        this.createAnimation('hero','idle_up',10,13,32,32,-1,false,4);
-        this.createAnimation('hero','idle_right',19,22,32,32,-1,false,4);
-        this.createAnimation('hero','idle_down',1,4,32,32,-1,false,4);
-        this.createAnimation('hero','idle_left',28,31,32,32,-1,false,4);
-        this.createAnimation('hero','show',6,6,32,32,-1,false,1);
-        this.createAnimation('hero','attack_down',38,40,32,32,0,false,12);
-        this.createAnimation('hero','attack_left',65,67,32,32,0,false,12);
-        this.createAnimation('hero','attack_up',47,49,32,32,0,false,12);
-        this.createAnimation('hero','attack_right',56,58,32,32,0,false,12);
+        this.configAnimation('hero');
         //npc
-        this.createAnimation('npc','up',11,14,32,24,-1,true,4);
-        this.createAnimation('npc','right',6,9,32,24,-1,true,4);
-        this.createAnimation('npc','down',1,4,32,24,-1,true,4);
-        this.createAnimation('npc','left',16,19,32,24,-1,true,4);
-        this.createAnimation('npc','idle_up',11,11,32,24,-1,true,4);
-        this.createAnimation('npc','idle_right',6,6,32,24,-1,true,4);
-        this.createAnimation('npc','idle_down',1,1,32,24,-1,true,4);
-        this.createAnimation('npc','idle_left',16,16,32,24,-1,true,4);
+        //this.oldNPCconfigAnimation('npc');
+        for (let i = 0; i < 20; i++) {
+            this.configAnimation(`npc${i}`);            
+        }
         // *** 
 
         //*** CAMERA ***
@@ -180,8 +152,10 @@ export default class TestScene extends Scene {
                 this.input.off('pointerup');
                 this.input.off('pointermove');
 
+                let selectContainer = this.gridEngine.getContainer('hero');
+
                 // Follow main character
-                this.cameras.main.startFollow(currentHeroSprite, true);
+                this.cameras.main.startFollow(selectContainer, true);
                 this.cameras.main.setFollowOffset(-currentHeroSprite.width, -currentHeroSprite.height);
             } else {
                 // Stop following main character (if it's already following)
@@ -317,13 +291,17 @@ export default class TestScene extends Scene {
         const numNPCs = this.numNPCs; // totalSupply from contract
         console.log("Spawned NPCs:", numNPCs);
 
+        let n = 0;
         // Define the NPC sprite configuration (assuming npcSprite is defined elsewhere)
-        const npcSpriteConfig = { x: 0, y: 0, texture: 'npc', frame: 1 };
+        const npcSpriteConfig = { x: 0, y: 0, texture: `npc`, frame: 1 };
 
         // Iterate to create each NPC sprite
         for (let i = 0; i < numNPCs; i++) {
+            if (n >= 20) {
+                n = 0;
+            }
             // Clone the existing NPC sprite
-            const npcSprite = this.physics.add.sprite(npcSpriteConfig.x, npcSpriteConfig.y, npcSpriteConfig.texture, npcSpriteConfig.frame);
+            const _npcSprite = this.physics.add.sprite(npcSpriteConfig.x, npcSpriteConfig.y, `${npcSpriteConfig.texture}${n}`, npcSpriteConfig.frame);
 
             // Add NPC sprite to the array
             npcSprites.push(npcSprite);
@@ -331,45 +309,46 @@ export default class TestScene extends Scene {
             // Configure each NPC sprite as needed
             // For example, you can set different positions for each NPC sprite
             //npcSprite.setPosition( /* Set position here */ );
-            let X = 0;
-            let Y = 0;
-            if (i < 30 ) {
-                X = i;
-                Y = 11;
-            } else if (i < 60) {
-                X = 0;
-                Y = 12;
-            } else if (i < 90) {
-                X = 3;
-                Y = 13;
-            } else if (i < 120) {
-                X = 25;
-                Y = 3;
-            } else if (i < 150) {
-                X = 25;
-                Y = 16;
-            } else if (i < 180) {
-                X = 16;
-                Y = 16;
-            }
+            let X = this.getRandom(0,399);
+            let Y = this.getRandom(0,399);
+            // if (i < 30 ) {
+            //     X = i;
+            //     Y = 11;
+            // } else if (i < 60) {
+            //     X = 0;
+            //     Y = 12;
+            // } else if (i < 90) {
+            //     X = 3;
+            //     Y = 13;
+            // } else if (i < 120) {
+            //     X = 25;
+            //     Y = 3;
+            // } else if (i < 150) {
+            //     X = 25;
+            //     Y = 16;
+            // } else if (i < 180) {
+            //     X = 16;
+            //     Y = 16;
+            // }
 
             //*** NPC TOP ID LABEL ***
             let _NPCID = this.padZeros(i, 4);
             let _text = this.add.text(4, -10, _NPCID);
             _text.setColor("#252525");
             _text.setFontSize("10px");
-            let _container = this.add.container(0, 0, [npcSprite, _text]);
+            let _container = this.add.container(0, 0, [_npcSprite, _text]);
             //*** NPC TOP LABEL END ***
 
             // Add the NPC sprite to the grid engine configuration or handle its behavior
             gridEngineConfig.characters.push({
                 id: `npc${i}`, // Unique ID for the NPC
-                sprite: npcSprite,
+                sprite: _npcSprite,
                 container: _container,
                 startPosition: { x: X, y: Y },
                 speed: 1.5,
                 // Add any other properties or configurations needed for the NPC
             });
+            n++;
         }
 
         this.gridEngine.create(map, gridEngineConfig);
@@ -386,7 +365,7 @@ export default class TestScene extends Scene {
             } else {
                 let _sprite = this.gridEngine.getSprite(charId);
                 if (charId.includes('npc')){
-                    _sprite.anims.play(`npc_${direction}`);
+                    _sprite.anims.play(`${_sprite.texture.key}_${direction}`);
                     return;
                 }
             }
@@ -400,7 +379,7 @@ export default class TestScene extends Scene {
             } else {
                 let _sprite = this.gridEngine.getSprite(charId);
                 if (charId.includes('npc')){
-                    _sprite.anims.play(`npc_idle_${direction}`);
+                    _sprite.anims.play(`${_sprite.texture.key}_idle_${direction}`);
                     _sprite.anims.stop();
                     return;
                 }
@@ -413,7 +392,7 @@ export default class TestScene extends Scene {
             } else {
                 let _sprite = this.gridEngine.getSprite(charId);
                 if (charId.includes('npc')){
-                    _sprite.anims.play(`npc_idle_${direction}`);
+                    _sprite.anims.play(`${_sprite.texture.key}_idle_${direction}`);
                     return;
                 }
             }
@@ -645,7 +624,41 @@ export default class TestScene extends Scene {
         this.createComplete = true;
     }
 
-    // *** Create Anims
+    // *** Config & Create Anims
+    // oldNPCconfigAnimation(spriteSheet: string) {
+    //     this.createAnimation(spriteSheet,'up',11,14,32,24,-1,true,4);
+    //     this.createAnimation(spriteSheet,'right',6,9,32,24,-1,true,4);
+    //     this.createAnimation(spriteSheet,'down',1,4,32,24,-1,true,4);
+    //     this.createAnimation(spriteSheet,'left',16,19,32,24,-1,true,4);
+    //     this.createAnimation(spriteSheet,'idle_up',11,11,32,24,-1,true,4);
+    //     this.createAnimation(spriteSheet,'idle_right',6,6,32,24,-1,true,4);
+    //     this.createAnimation(spriteSheet,'idle_down',1,1,32,24,-1,true,4);
+    //     this.createAnimation(spriteSheet,'idle_left',16,16,32,24,-1,true,4);
+    //     if (spriteSheet === 'hero') {
+    //         this.createAnimation(spriteSheet,'show',81,81,32,24,-1,true,4);
+    //         this.createAnimation(spriteSheet,'attack_down',21,24,32,24,0,false,4);
+    //         this.createAnimation(spriteSheet,'attack_left',26,29,32,24,0,false,4);
+    //         this.createAnimation(spriteSheet,'attack_up',31,34,32,24,0,false,4);
+    //         this.createAnimation(spriteSheet,'attack_right',36,39,32,24,0,false,4);
+    //     }
+    // }
+
+    configAnimation(spriteSheet: string) {
+        this.createAnimation(spriteSheet,'up',46,53,32,32,-1,false,6);
+        this.createAnimation(spriteSheet,'right',55,62,32,32,-1,false,6);
+        this.createAnimation(spriteSheet,'down',37,44,32,32,-1,false,6);
+        this.createAnimation(spriteSheet,'left',64,71,32,32,-1,false,6);
+        this.createAnimation(spriteSheet,'idle_up',10,13,32,32,-1,false,4);
+        this.createAnimation(spriteSheet,'idle_right',19,22,32,32,-1,false,4);
+        this.createAnimation(spriteSheet,'idle_down',1,4,32,32,-1,false,4);
+        this.createAnimation(spriteSheet,'idle_left',28,31,32,32,-1,false,4);
+        this.createAnimation(spriteSheet,'show',6,6,32,32,-1,false,1);
+        this.createAnimation(spriteSheet,'attack_down',38,40,32,32,0,false,12);
+        this.createAnimation(spriteSheet,'attack_left',65,67,32,32,0,false,12);
+        this.createAnimation(spriteSheet,'attack_up',47,49,32,32,0,false,12);
+        this.createAnimation(spriteSheet,'attack_right',56,58,32,32,0,false,12);
+    }
+
     createAnimation(
         spriteSheet: string,
         name: string,
@@ -801,6 +814,11 @@ export default class TestScene extends Scene {
         const directions = ['up', 'down', 'left', 'right', 'wait'];
         const randomIndex = Phaser.Math.Between(0, directions.length - 1);
         return directions[randomIndex];
+    }
+
+    private getRandom(min: number, max: number) {
+        const randomIndex = Phaser.Math.Between(min, max);
+        return randomIndex;
     }
 
     private padZeros(number: number, length: number): string {

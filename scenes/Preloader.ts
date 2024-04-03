@@ -19,6 +19,14 @@ export default class Preloader extends Scene {
         //     frameWidth: 32,
         //     frameHeight: 32
         // });
+        for (let i = 0; i < 20; i++) {
+            let randomNPC = await this.createRandomSprite();
+            this.load.spritesheet(`npc${i}`, randomNPC, {
+                frameWidth: 32,
+                frameHeight: 32
+            });
+            
+        }
         this.load.spritesheet('npc', 'tiles/character.png', {
             frameWidth: 32,
             frameHeight: 24
@@ -35,7 +43,7 @@ export default class Preloader extends Scene {
     }
 
     private async createRandomSprite(): Promise<string> {
-       const spriteURL = `https://bafybeievbtmulipmzjflbs25ti3w5tk63u3slwgo2zrxcdwz3zea5rqphi.ipfs.nftstorage.link/${this.getRandom(1,20)}.png`;
+        const spriteURL = `https://bafybeievbtmulipmzjflbs25ti3w5tk63u3slwgo2zrxcdwz3zea5rqphi.ipfs.nftstorage.link/${this.getRandom(1,20)}.png`;
     
         // Return the combined data URL
         return spriteURL;
