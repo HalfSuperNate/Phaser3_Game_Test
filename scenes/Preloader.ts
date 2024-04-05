@@ -5,7 +5,8 @@ export default class Preloader extends Scene {
         super('preloader');
     }
     async preload() {
-        this.load.image('tiles', 'tiles/Overworld.png');
+        // this.load.image('tiles', 'tiles/Overworld.png');
+        this.load.image('tiles', 'tiles/544x192.png');
         this.load.tilemapTiledJSON('testmap', 'tiles/testmap.json');
         // Call createRandomSprite to get the PNG data URL
         const randomHero = await this.createRandomSprite();

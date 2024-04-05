@@ -42,7 +42,7 @@ export default class TestScene extends Scene {
             this.initData = data;
         } else {
             const newGameState = {
-                position: { x: 8, y: 4},
+                position: { x: 8, y: 10},
                 mapKey: 'testmap'
             };
 
@@ -107,7 +107,8 @@ export default class TestScene extends Scene {
         let isGridEngineInitialized = false;
         const interactiveLayers = this.add.group();
         const map = this.make.tilemap({ key: mapKey });
-        map.addTilesetImage('ZeldaLike', 'tiles');
+        // map.addTilesetImage('ZeldaLike', 'tiles');
+        map.addTilesetImage('Warehouse', 'tiles');
 
         let currentHeroSprite: Phaser.Physics.Arcade.Sprite;
         const heroSprite = this.physics.add.sprite(0, 0, 'hero', 1);
@@ -115,7 +116,8 @@ export default class TestScene extends Scene {
         const npcSprite = this.physics.add.sprite(0, 0, 'npc', 1);
 
         map.layers.forEach((layer, index) => {
-            const mapLayer = map.createLayer(index, 'ZeldaLike', 0, 0);
+            //const mapLayer = map.createLayer(index, 'ZeldaLike', 0, 0);
+            const mapLayer = map.createLayer(index, 'Warehouse', 0, 0);
             if (mapLayer) {
                 if (layer.name == 'bushes' || layer.name == 'boxes'|| layer.name == 'signs' || layer.name.includes('signs')) {
                     interactiveLayers.add(mapLayer);
@@ -309,27 +311,13 @@ export default class TestScene extends Scene {
             // Configure each NPC sprite as needed
             // For example, you can set different positions for each NPC sprite
             //npcSprite.setPosition( /* Set position here */ );
-            let X = this.getRandom(0,399);
-            let Y = this.getRandom(0,399);
-            // if (i < 30 ) {
-            //     X = i;
-            //     Y = 11;
-            // } else if (i < 60) {
-            //     X = 0;
-            //     Y = 12;
-            // } else if (i < 90) {
-            //     X = 3;
-            //     Y = 13;
-            // } else if (i < 120) {
-            //     X = 25;
-            //     Y = 3;
-            // } else if (i < 150) {
-            //     X = 25;
-            //     Y = 16;
-            // } else if (i < 180) {
-            //     X = 16;
-            //     Y = 16;
-            // }
+            let X = this.getRandom(6,31);
+            let Y = this.getRandom(9,31);
+            if (i > 30) {
+                //put other npcs in a specific location
+                X = 5;
+                Y = 60;
+            }
 
             //*** NPC TOP ID LABEL ***
             let _NPCID = this.padZeros(i, 4);
