@@ -311,12 +311,12 @@ export default class TestScene extends Scene {
             // Configure each NPC sprite as needed
             // For example, you can set different positions for each NPC sprite
             //npcSprite.setPosition( /* Set position here */ );
-            let X = this.getRandom(6,31);
-            let Y = this.getRandom(9,31);
+            let X = this.getRandom(21,44);
+            let Y = this.getRandom(15,33);
             if (i > 30) {
                 //put other npcs in a specific location
-                X = 5;
-                Y = 60;
+                X = this.getRandom(14,66);
+                Y = this.getRandom(56,71);
             }
 
             //*** NPC TOP ID LABEL ***
