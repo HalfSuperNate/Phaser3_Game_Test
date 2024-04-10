@@ -20,6 +20,7 @@ const Game = () => {
         xPosition: '',
         yPosition: ''
     });
+    const controllerSize = { width: '5vh', height: '5vh', minWidth: '50px', minHeight: '50px' };
 
     const handleInputChange = (e: any) => {
         const { name, value } = e.target;
@@ -248,10 +249,11 @@ const Game = () => {
             <button onClick={() => handleButtonClick('movement', { direction: 'toggleCameraMode' })}>
                 Toggle Camera Mode
             </button>
-            <br />
-            <div style={{ textAlign: 'center' }}>
+            <br /><br />
+            <div className="controls" style={{ textAlign: 'center' }}>
                 <div style={{ display: 'inline-block' }}>
-                    <button 
+                    <button className="movement_controls"
+                        style={controllerSize}
                         onMouseDown={() => {
                             handleMovementButtonDown('up');
                             isMovementButtonPressed = true;
@@ -259,7 +261,8 @@ const Game = () => {
                         onMouseUp={handleMovementButtonUp}
                         onMouseLeave={handleMovementButtonUp}
                     >⬆️</button><br />
-                    <button 
+                    <button className="movement_controls"
+                        style={controllerSize}
                         onMouseDown={() => {
                             handleMovementButtonDown('left');
                             isMovementButtonPressed = true;
@@ -267,7 +270,17 @@ const Game = () => {
                         onMouseUp={handleMovementButtonUp}
                         onMouseLeave={handleMovementButtonUp}
                     >⬅️</button>
-                    <button 
+                    <button className="movement_controls"
+                        style={controllerSize}
+                        // onMouseDown={() => {
+                        //     handleMovementButtonDown('left');
+                        //     isMovementButtonPressed = true;
+                        // }}
+                        // onMouseUp={handleMovementButtonUp}
+                        // onMouseLeave={handleMovementButtonUp}
+                    >⚪️</button>
+                    <button className="movement_controls"
+                        style={controllerSize}
                         onMouseDown={() => {
                             handleMovementButtonDown('right');
                             isMovementButtonPressed = true;
@@ -275,7 +288,8 @@ const Game = () => {
                         onMouseUp={handleMovementButtonUp}
                         onMouseLeave={handleMovementButtonUp}
                     >➡️</button><br />
-                    <button 
+                    <button className="movement_controls"
+                        style={controllerSize}
                         onMouseDown={() => {
                             handleMovementButtonDown('down');
                             isMovementButtonPressed = true;
@@ -285,10 +299,10 @@ const Game = () => {
                     >⬇️</button>
                 </div>
                 <div style={{ display: 'inline-block', marginLeft: '20px' }}>
-                    <button onClick={() => handleButtonClick('movement', { direction: 'attack' })}>🗡️</button>
+                    <button style={controllerSize} onClick={() => handleButtonClick('movement', { direction: 'attack' })}>🗡️</button>
                 </div>
             </div>
-            <br />
+            <br /><br />
             <div>
             <div className="input-group">
                 <input 

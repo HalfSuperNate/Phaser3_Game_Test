@@ -34,6 +34,7 @@ export default class TestScene extends Scene {
     createComplete = false;
     isAttacking = false;
     isMoving = false;
+    isSpinning = false;
     isDialog = false;
     isTeleporting = false;
 
@@ -349,11 +350,16 @@ export default class TestScene extends Scene {
         this.gridEngine.movementStarted().subscribe(({ charId, direction }: { charId: string, direction: string }) => {
             if (charId === 'hero') {
                 this.isMoving = true;
-                heroSprite.anims.play(`hero_${direction}`);
+                if(this.isSpinning) {
+                    heroSprite.anims.play(`hero_spin`);
+                } else{
+                    heroSprite.anims.play(`hero_${direction}`);
+                }
             } else {
                 let _sprite = this.gridEngine.getSprite(charId);
                 if (charId.includes('npc')){
                     _sprite.anims.play(`${_sprite.texture.key}_${direction}`);
+                    //_sprite.anims.play(`${_sprite.texture.key}_spin`);
                     return;
                 }
             }
@@ -645,6 +651,7 @@ export default class TestScene extends Scene {
         this.createAnimation(spriteSheet,'attack_left',65,67,32,32,0,false,12);
         this.createAnimation(spriteSheet,'attack_up',47,49,32,32,0,false,12);
         this.createAnimation(spriteSheet,'attack_right',56,58,32,32,0,false,12);
+        this.createAnimation(spriteSheet,'spin',0,3,32,32,-1,false,6);
     }
 
     createAnimation(
@@ -666,9 +673,37 @@ export default class TestScene extends Scene {
         // }
 
         for (let i = startFrame; i <= endFrame; i++) {
+            let _frame;
+            let _animData;
+            if (name.includes('spin')){
+                switch (i) {
+                    case 0:
+                        _animData = this.anims.toJSON(`${spriteSheet}_idle_down`);
+                        break;
+                    case 1:
+                        _animData = this.anims.toJSON(`${spriteSheet}_idle_left`);
+                        break;
+                    case 2:
+                        _animData = this.anims.toJSON(`${spriteSheet}_idle_up`);
+                        break;
+                    case 3:
+                        _animData = this.anims.toJSON(`${spriteSheet}_idle_right`);
+                        break;
+                    default:
+                        _animData = this.anims.toJSON(`${spriteSheet}_idle_down`);
+                        break;
+                }
+                if(_animData) {
+                    _frame = _animData.anims[0].frames[0].frame;
+                    console.log(_animData.anims[0].frames[0].frame);
+                }
+            }
+            else {
+                _frame = i;
+            }
             frames.push({
                 key: spriteSheet,
-                frame: i,
+                frame: _frame,
                 duration: 0,
                 frameWidth: frameWidth,
                 frameHeight: frameHeight

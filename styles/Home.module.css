@@ -101,3 +101,11 @@
     flex-direction: column;
   }
 }
+
+/* Media query for mobile devices */
+@media screen and (max-width: 768px) {
+  .container {
+    width: fit-content; /* Make width fit its content */
+    height: fit-content; /* Make height fit its content */
+  }
+}
