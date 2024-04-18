@@ -3,8 +3,10 @@ import Phaser, { Input, Scene } from 'phaser';
 import EventManager from '../components/EventManager';
 import TotalSupplyFetcher from '../utils/TotalSupplyFetcher';
 import { dialogues } from '../utils/dialogues';
+import ComponentService from '../components/ComponentServices';
+import DialogBox from '../components/DialogBox';
 import { from } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+//import { finalize } from 'rxjs/operators';
 
 interface MovementEventData {
     direction: string;
@@ -20,6 +22,7 @@ const eventManager = EventManager.getInstance();
 const random = new Phaser.Math.RandomDataGenerator();
 
 export default class TestScene extends Scene {
+    private components!: ComponentService;
     private gridEngine!: any;
     private lastKeyPressTime: number = 0; // Track the time of the last key press
     private heroActionCollider!: Phaser.GameObjects.Rectangle;
@@ -97,6 +100,7 @@ export default class TestScene extends Scene {
     async preload() {
         // Preload assets for splash and title screens
         this.preloadComplete = true;
+        this.components = new ComponentService();
     }
 
     async create() {
@@ -346,6 +350,10 @@ export default class TestScene extends Scene {
         }
         //this.gridEngine.moveRandomly('npc0', 1500); // original NPC
         //*** NPC SPAWNER END ***
+
+        //*** DIALOG BOX ***
+        // moved to UIScene.ts
+        //*** DIALOG BOX END ***
 
         this.gridEngine.movementStarted().subscribe(({ charId, direction }: { charId: string, direction: string }) => {
             if (charId === 'hero') {
@@ -614,7 +622,7 @@ export default class TestScene extends Scene {
             this.spriteMoveTo(data.spriteName, data.xPos, data.yPos);
         };
         eventManager.addEventListener('spriteMoveToEvent', spriteMoveToListener);
-        
+
         this.createComplete = true;
     }
 

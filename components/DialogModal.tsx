@@ -35,7 +35,7 @@ const DialogModal: React.FC<DialogModalProps> = ({ showDialog, onClose, dialogue
     const currentDialogue = dialogues[currentDialogueIndex];
     
     return (
-        <dialog open={showDialog}>
+        <dialog className="dialogBox" open={showDialog}>
             <div>
                 <h2>{currentDialogue.title}</h2>
                 <p>{currentDialogue.message}</p>

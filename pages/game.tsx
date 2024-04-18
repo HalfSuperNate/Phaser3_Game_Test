@@ -39,6 +39,7 @@ const Game = () => {
 
             const { default: Preloader } = await import('../scenes/Preloader');
             const { default: TestScene } = await import('../scenes/TestScene');
+            const { default: UIScene } = await import('../scenes/UIScene');
             // do this otherwise dev hot-reload
             // will create a number of Phaser instances
             if (game) {
@@ -68,7 +69,8 @@ const Game = () => {
                     // GameScene,
                     // MainMenuScene,
                     Preloader,
-                    TestScene
+                    TestScene,
+                    UIScene
                 ],
                 physics: {
                     default: 'arcade',
