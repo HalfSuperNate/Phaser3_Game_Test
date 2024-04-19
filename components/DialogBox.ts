@@ -1,26 +1,29 @@
 import { IComponent } from "./ComponentServices";
-//import socket from '../utils/socketConnection';
+import SocketComponent from '../utils/SocketComponent';
 
 export default class DialogBox implements IComponent {
     private gameObject!: Phaser.GameObjects.Container;
 
+    constructor() {
+        // Listen for events from the socket server
+        SocketComponent.connect();
+
+        // SocketComponent.on('response', (data) => {
+        //     console.log('Received response:', data);
+        // });
+
+        // SocketComponent.on('simulation_event', (data) => {
+        //     console.log('Simulation event:', data);
+        // });
+
+        SocketComponent.on('drip_event', (data) => {
+            console.log('Drip event:', data);
+        });
+    }
+
     init(go: Phaser.GameObjects.GameObject) {
         this.gameObject = go as Phaser.GameObjects.Container;
-
-        /*
-        // Listen for events from the socket server
-        socket.on('response', (data) => {
-            console.log(data);
-        });
-
-        socket.on('simulation_event', (data) => {
-            console.log(data);
-        });
-
-        socket.on('drip_event', (data) => {
-            console.log(data);
-        });
-        */
+        
     }
 
     awake() {
