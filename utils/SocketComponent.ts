@@ -18,7 +18,7 @@ export interface DripEventData {
     exchanges: Exchanges;
 }
 
-const URL = 'http://3.14.10.132';
+export const URL = 'http://3.14.10.132';
 const socket = io(URL); // Connect to Socket.IO server URL
 
 const SocketComponent = {
@@ -38,6 +38,32 @@ const SocketComponent = {
     connect: () => {
         socket.connect();
         console.log('Connected to server');
+    },
+
+    // HTTP requests
+    post: async (url: string, postData: any) => {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(postData)
+            });
+            return response.json();
+        } catch (error) {
+            console.error('Error encountered during POST request:', error);
+            throw error;
+        }
+    },
+    get: async (url: string) => {
+        try {
+            const response = await fetch(url);
+            return response.json();
+        } catch (error) {
+            console.error('Error encountered during GET request:', error);
+            throw error;
+        }
     }
 };
 

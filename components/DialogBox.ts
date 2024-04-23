@@ -1,10 +1,12 @@
 import { IComponent } from "./ComponentServices";
-import SocketComponent from '../utils/SocketComponent';
+import SocketComponent, { URL } from '../utils/SocketComponent';
 
 export default class DialogBox implements IComponent {
     private gameObject!: Phaser.GameObjects.Container;
+    aws_server = URL;
 
     constructor() {
+        
         // Listen for events from the socket server
         SocketComponent.connect();
 
@@ -54,11 +56,33 @@ export default class DialogBox implements IComponent {
         this.gameObject.add(noText);
     }
 
-    pageUpPress() {
-        alert("Page Up Pressed! This would tab up to previous conversations.");
+    addContestants() {
+        const data = {
+            "contestant_ids": ["0", "1", "2"]
+        }
+        
+        const postData = SocketComponent.post(`${this.aws_server}/api/contestants/batch`,data);
+        console.log(postData);
     }
 
-    pageDnPress() {
-        alert("Page Down Pressed! This would tab down to the next or latest conversation.");
+    getContestantCount() {
+        const getData = SocketComponent.get(`${this.aws_server}/api/contestants/count`);
+        console.log(getData);
+    }
+
+    async pageUpPress() {
+        alert("Page Up Pressed! This currently adds contestants 0,1,2.");
+        const data = {
+            "contestant_ids": ["0", "1", "2"]
+        }
+        
+        const postData = await SocketComponent.post(`http://3.14.10.132/api/contestants/batch`,data);
+        console.log(postData);
+    }
+
+    async pageDnPress() {
+        alert("Page Down Pressed! This currently gets the contestant count.");
+        const getData = await SocketComponent.get(`http://3.14.10.132/api/contestants/count`);
+        console.log(getData);
     }
 }
