@@ -57,8 +57,9 @@ export default class DialogBox implements IComponent {
         bg.setOrigin(0,0);
 
         const textWidth = bg.width * 0.9;
-        this.text = scene.add.text(10,10, `ABC123`, {
-            fontSize: '0.8em'
+        this.text = scene.add.text(10,10, `Speaker_001: The quick brown fox jumps over the lazy dog.\n\nSpeaker_002: Dog lazy the over jumps fox brown quick the.`, {
+            fontSize: '0.7rem',
+            fontFamily: 'Cantarell'
         });
         this.text.setWordWrapWidth(textWidth);
 
