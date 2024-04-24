@@ -18,7 +18,7 @@ export interface DripEventData {
     exchanges: Exchanges;
 }
 
-export const URL = 'http://3.14.10.132';
+export const URL = 'https://burnitdao.ai'; // https://burnitdao.ai/api/contestants
 const socket = io(URL); // Connect to Socket.IO server URL
 
 const SocketComponent = {
@@ -45,6 +45,7 @@ const SocketComponent = {
         try {
             const response = await fetch(url, {
                 method: 'POST',
+                //mode: 'no-cors',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -58,7 +59,13 @@ const SocketComponent = {
     },
     get: async (url: string) => {
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                method: 'GET', // or 'POST', 'PUT', etc.
+                //mode: 'no-cors'
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
             return response.json();
         } catch (error) {
             console.error('Error encountered during GET request:', error);

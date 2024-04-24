@@ -1,9 +1,9 @@
 import { IComponent } from "./ComponentServices";
-import SocketComponent, { URL } from '../utils/SocketComponent';
+import SocketComponent, {URL} from '../utils/SocketComponent';
 
 export default class DialogBox implements IComponent {
     private gameObject!: Phaser.GameObjects.Container;
-    aws_server = URL;
+    private aws_server = URL;
 
     constructor() {
         
@@ -54,35 +54,59 @@ export default class DialogBox implements IComponent {
         this.gameObject.add(text);
         this.gameObject.add(okText);
         this.gameObject.add(noText);
+
+        console.log(this.aws_server);
     }
 
-    addContestants() {
-        const data = {
-            "contestant_ids": ["0", "1", "2"]
+    async addContestants() {
+        try {
+            const data = {
+                contestant_ids: ["0", "1", "2"]
+            };
+            const postData = await SocketComponent.post(`https://burnitdao.ai/api/contestants/batch`, data);
+            console.log(postData);
+        } catch (error) {
+            console.error('Error adding contestants:', error);
         }
-        
-        const postData = SocketComponent.post(`${this.aws_server}/api/contestants/batch`,data);
-        console.log(postData);
     }
 
-    getContestantCount() {
-        const getData = SocketComponent.get(`${this.aws_server}/api/contestants/count`);
-        console.log(getData);
+    async getContestantCount() {
+        try {
+            const response = await SocketComponent.get(`https://burnitdao.ai/api/contestants/count`);
+            // Check if the response is JSON
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                console.log(data);
+            } else {
+                // Handle non-JSON response
+                console.error('Unexpected response format:', await response.text());
+            }
+        } catch (error) {
+            console.error('Error getting contestant count:', error);
+        }
     }
 
     async pageUpPress() {
         alert("Page Up Pressed! This currently adds contestants 0,1,2.");
-        const data = {
-            "contestant_ids": ["0", "1", "2"]
+        try {
+            const data = {
+                contestant_ids: ["0", "1", "2"]
+            };
+            const postData = await SocketComponent.post(`https://burnitdao.ai/api/contestants/batch`, data);
+            console.log(postData);
+        } catch (error) {
+            console.error('Error adding contestants:', error);
         }
-        
-        const postData = await SocketComponent.post(`http://3.14.10.132/api/contestants/batch`,data);
-        console.log(postData);
     }
 
     async pageDnPress() {
         alert("Page Down Pressed! This currently gets the contestant count.");
-        const getData = await SocketComponent.get(`http://3.14.10.132/api/contestants/count`);
-        console.log(getData);
+        try {
+            const response = await SocketComponent.get(`https://burnitdao.ai/api/contestants/count`);
+            console.log(response);
+        } catch (error) {
+            console.error('Error getting contestant count:', error);
+        }
     }
 }
