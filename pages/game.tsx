@@ -248,7 +248,7 @@ const Game = () => {
                 currentDialogueIndex={currentDialogueIndex} 
                 onNext={handleNextDialogue} // Add onNext prop
             />
-            <button onClick={() => handleButtonClick('movement', { direction: 'toggleCameraMode' })}>
+            {/* <button onClick={() => handleButtonClick('movement', { direction: 'toggleCameraMode' })}>
                 Toggle Camera Mode
             </button>
             <br /><br />
@@ -306,42 +306,42 @@ const Game = () => {
             </div>
             <br /><br />
             <div>
-            <div className="input-group">
-                <input 
-                    type="text" 
-                    id="name" 
-                    name="name" 
-                    placeholder="npc1 for 0001"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                />
-            </div>
+                <div className="input-group">
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        placeholder="npc1 for 0001"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                    />
+                </div>
 
-            <div className="input-group">
-                <input 
-                    type="number" 
-                    id="xPosition" 
-                    name="xPosition" 
-                    placeholder="X Position"
-                    value={formData.xPosition}
-                    onChange={handleInputChange}
-                />
-            </div>
+                <div className="input-group">
+                    <input 
+                        type="number" 
+                        id="xPosition" 
+                        name="xPosition" 
+                        placeholder="X Position"
+                        value={formData.xPosition}
+                        onChange={handleInputChange}
+                    />
+                </div>
 
-            <div className="input-group">
-                <input 
-                    type="number" 
-                    id="yPosition" 
-                    name="yPosition" 
-                    placeholder="Y Position"
-                    value={formData.yPosition}
-                    onChange={handleInputChange}
-                />
-            </div>
+                <div className="input-group">
+                    <input 
+                        type="number" 
+                        id="yPosition" 
+                        name="yPosition" 
+                        placeholder="Y Position"
+                        value={formData.yPosition}
+                        onChange={handleInputChange}
+                    />
+                </div>
 
-            <button onClick={() => handleButtonClick('spriteMoveToEvent', { spriteName: formData.name, xPos: formData.xPosition, yPos: formData.yPosition })}>Move Sprite To</button>
+                <button onClick={() => handleButtonClick('spriteMoveToEvent', { spriteName: formData.name, xPos: formData.xPosition, yPos: formData.yPosition })}>Move Sprite To</button>
 
-        </div>
+            </div> */}
         </>
     )
 }

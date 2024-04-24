@@ -34,7 +34,7 @@ export default class DialogBox implements IComponent {
             let convo = "";
             exchanges.forEach((exchange) => {
                 console.log(exchange.speaker_full_name, exchange.message);
-                convo += `${exchange.speaker_full_name}: ${exchange.message}\n`;
+                convo += `${exchange.speaker_full_name}: ${exchange.message}\n\n`;
             });
             this.updateText(convo);
             console.log('Drip event:', data);
@@ -48,44 +48,49 @@ export default class DialogBox implements IComponent {
 
     awake() {
         const { scene } = this.gameObject;
+        const sceneWidth = scene.scale.width;
+        const sceneHeight = scene.scale.height;
+        const bgWidth = sceneWidth / 4; // Adjust the width as needed
+        const bgHeight = sceneHeight;
 
-        const bg = scene.add.rectangle(0,0, scene.scale.width, 150, 0x914f1d, 0.6);
-        bg.setOrigin(0);
+        const bg = scene.add.rectangle(0, 0, bgWidth, bgHeight, 0x914f1d, 0.6);
+        bg.setOrigin(0,0);
 
-        const textWidth = bg.width * 0.7;
-        this.text = scene.add.text(10,10, ``, {
-            fontSize: '1em'
+        const textWidth = bg.width * 0.9;
+        this.text = scene.add.text(10,10, `ABC123`, {
+            fontSize: '0.8em'
         });
         this.text.setWordWrapWidth(textWidth);
 
         // Create a container to hold the text
-        const textContainer = scene.add.container(0, 0, [this.text]);
-        textContainer.setSize(textWidth, bg.height); // Set the size of the container to match the background
+        const textContainer = scene.add.container(300,-240, [bg, this.text]);
+        textContainer.setSize(textWidth, bgHeight); // Set the size of the container to match the background
 
         // Enable vertical scrolling for the container
         textContainer.setInteractive({
-            hitArea: new Phaser.Geom.Rectangle(0, 0, textWidth, bg.height),
+            hitArea: new Phaser.Geom.Rectangle(0, 0, bgWidth, bgHeight),
             draggable: true,
             useHandCursor: true
         });
 
-        const okText = scene.add.text(this.text.x + textWidth + 50, 10, 'PgUp', {
-            backgroundColor: '#5c3010'
-        });
-        okText.setInteractive().on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.pageUpPress);
+        // const okText = scene.add.text(this.text.x + textWidth + 50, 10, 'PgUp', {
+        //     backgroundColor: '#5c3010'
+        // });
+        // okText.setInteractive().on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.pageUpPress);
 
-        const noText = scene.add.text(okText.x, okText.y + okText.height + 5, 'PgDn', {
-            backgroundColor: '#5c3010'
-        });
-        noText.setInteractive().on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.pageDnPress);
+        // const noText = scene.add.text(okText.x, okText.y + okText.height + 5, 'PgDn', {
+        //     backgroundColor: '#5c3010'
+        // });
+        // noText.setInteractive().on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.pageDnPress);
 
-        this.gameObject.add(bg);
+        //this.gameObject.add(bg);
         //this.gameObject.add(text);
         this.gameObject.add(textContainer);
-        this.gameObject.add(okText);
-        this.gameObject.add(noText);
+        //this.gameObject.add(okText);
+        //this.gameObject.add(noText);
 
         console.log(this.aws_server);
+        this.addContestants();
     }
 
     updateText(convo: string) {
