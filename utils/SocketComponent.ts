@@ -71,6 +71,22 @@ const SocketComponent = {
             console.error('Error encountered during GET request:', error);
             throw error;
         }
+    },
+    reset: async () => {
+        try {
+            const response = await fetch('https://burnitdao.ai/api/reset', {
+                method: 'POST',
+                //mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+            return response.json();
+        } catch (error) {
+            console.error('Error encountered during POST request:', error);
+            throw error;
+        }
     }
 };
 

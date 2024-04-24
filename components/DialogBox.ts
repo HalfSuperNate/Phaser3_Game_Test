@@ -1,9 +1,18 @@
 import { IComponent } from "./ComponentServices";
 import SocketComponent, {URL} from '../utils/SocketComponent';
 
+interface Exchange {
+    message: string;
+    names: string[];
+    speaker_full_name: string;
+    speaker_id: string;
+    // Add other properties if needed
+}
+
 export default class DialogBox implements IComponent {
     private gameObject!: Phaser.GameObjects.Container;
     private aws_server = URL;
+    private text!: Phaser.GameObjects.Text;
 
     constructor() {
         
@@ -18,7 +27,16 @@ export default class DialogBox implements IComponent {
         //     console.log('Simulation event:', data);
         // });
 
+        //SocketComponent.reset();
+
         SocketComponent.on('drip_event', (data) => {
+            let exchanges: Exchange[] = Object.values(data.exchanges);
+            let convo = "";
+            exchanges.forEach((exchange) => {
+                console.log(exchange.speaker_full_name, exchange.message);
+                convo += `${exchange.speaker_full_name}: ${exchange.message}\n`;
+            });
+            this.updateText(convo);
             console.log('Drip event:', data);
         });
     }
@@ -35,12 +53,23 @@ export default class DialogBox implements IComponent {
         bg.setOrigin(0);
 
         const textWidth = bg.width * 0.7;
-        const text = scene.add.text(10,10, `Speaker_A: Text from dialog goes here.\nSpeaker_B: Other text goes here. Then if there is more text that continues it may look something like this, what do you think?`, {
+        this.text = scene.add.text(10,10, ``, {
             fontSize: '1em'
         });
-        text.setWordWrapWidth(textWidth);
+        this.text.setWordWrapWidth(textWidth);
 
-        const okText = scene.add.text(text.x + textWidth + 50, 10, 'PgUp', {
+        // Create a container to hold the text
+        const textContainer = scene.add.container(0, 0, [this.text]);
+        textContainer.setSize(textWidth, bg.height); // Set the size of the container to match the background
+
+        // Enable vertical scrolling for the container
+        textContainer.setInteractive({
+            hitArea: new Phaser.Geom.Rectangle(0, 0, textWidth, bg.height),
+            draggable: true,
+            useHandCursor: true
+        });
+
+        const okText = scene.add.text(this.text.x + textWidth + 50, 10, 'PgUp', {
             backgroundColor: '#5c3010'
         });
         okText.setInteractive().on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.pageUpPress);
@@ -51,11 +80,16 @@ export default class DialogBox implements IComponent {
         noText.setInteractive().on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, this.pageDnPress);
 
         this.gameObject.add(bg);
-        this.gameObject.add(text);
+        //this.gameObject.add(text);
+        this.gameObject.add(textContainer);
         this.gameObject.add(okText);
         this.gameObject.add(noText);
 
         console.log(this.aws_server);
+    }
+
+    updateText(convo: string) {
+        this.text.setText(convo);
     }
 
     async addContestants() {

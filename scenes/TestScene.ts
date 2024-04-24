@@ -703,7 +703,7 @@ export default class TestScene extends Scene {
                 }
                 if(_animData) {
                     _frame = _animData.anims[0].frames[0].frame;
-                    console.log(_animData.anims[0].frames[0].frame);
+                    //console.log(_animData.anims[0].frames[0].frame);
                 }
             }
             else {
