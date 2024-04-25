@@ -3,7 +3,8 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import Game from './game';
-
+import Nav from './topNav';
+//⭕️
 const Home: NextPage = () => {
   return (
     <div className={styles.container}>
@@ -16,17 +17,21 @@ const Home: NextPage = () => {
         <link href="/favicon.png" rel="icon" />
       </Head>
 
-      <main className={styles.main}>
+      <header className={styles.topBar}>
         <ConnectButton />
-        <Game/>
-               
-      </main>
+        <Nav />
+      </header>
 
-      <footer className={styles.footer}>
-        {/* <a href="https://rainbow.me" rel="noopener noreferrer" target="_blank">
-          Made with ❤️ by your frens at 🌈
-        </a> */}
-      </footer>
+      <main className={styles.main}>
+        <div className={styles.content}>
+          <div className={styles.gameCanvas}>
+            <Game />
+          </div>
+          <div id="chatBox" className={styles.chatBox}>
+            Chat Box
+          </div>
+        </div>
+      </main>
     </div>
   );
 };

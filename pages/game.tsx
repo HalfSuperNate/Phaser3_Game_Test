@@ -15,20 +15,20 @@ const Game = () => {
     // Define state variables for dialog type and message
     const [dialogues, setDialogues] = useState<Dialogue[]>([]);
     const [currentDialogueIndex, setCurrentDialogueIndex] = useState(0);
-    const [formData, setFormData] = useState({
-        name: '',
-        xPosition: '',
-        yPosition: ''
-    });
-    const controllerSize = { width: '5vh', height: '5vh', minWidth: '50px', minHeight: '50px' };
+    // const [formData, setFormData] = useState({
+    //     name: '',
+    //     xPosition: '',
+    //     yPosition: ''
+    // });
+    //const controllerSize = { width: '5vh', height: '5vh', minWidth: '50px', minHeight: '50px' };
 
-    const handleInputChange = (e: any) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
+    // const handleInputChange = (e: any) => {
+    //     const { name, value } = e.target;
+    //     setFormData({
+    //         ...formData,
+    //         [name]: value
+    //     });
+    // };
 
     // Create game inside useEffect once
     // ^ only once
@@ -56,12 +56,13 @@ const Game = () => {
                 width: 400,
                 height: 300,
                 // zoom,
-                // autoRound: true,
+                autoRound: true,
                 pixelArt: true,
                 scale: {
-                    zoom: 2
-                    // autoCenter: Phaser.Scale.CENTER_BOTH
-                    // mode: Phaser.Scale.NONE
+                    zoom: 2,
+                    mode: Phaser.Scale.RESIZE, // Resize the game to fit the screen
+                    //autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game horizontally and vertically
+                    parent: 'game-content', // Parent element to attach the game canvas
                 },
                 scene: [
                     // BootScene,
@@ -217,30 +218,27 @@ const Game = () => {
         }
     };
 
-    let movementTimeout: NodeJS.Timeout | undefined;
-    let isMovementButtonPressed = false;
+    //let movementTimeout: NodeJS.Timeout | undefined;
+    //let isMovementButtonPressed = false;
 
-    const handleMovementButtonDown = (direction: string) => {
-        // Trigger the movement immediately when the button is pressed
-        handleButtonClick('movement', { direction });
+    // const handleMovementButtonDown = (direction: string) => {
+    //     // Trigger the movement immediately when the button is pressed
+    //     handleButtonClick('movement', { direction });
 
-        // Set a timeout to repeatedly trigger the movement while the button is held down
-        movementTimeout = setInterval(() => {
-            handleButtonClick('movement', { direction });
-        }, 150); // Adjust the interval as needed
-    };
+    //     // Set a timeout to repeatedly trigger the movement while the button is held down
+    //     movementTimeout = setInterval(() => {
+    //         handleButtonClick('movement', { direction });
+    //     }, 150); // Adjust the interval as needed
+    // };
 
-    const handleMovementButtonUp = () => {
-        // Clear the timeout and reset the button state when the button is released
-        clearInterval(movementTimeout);
-        isMovementButtonPressed = false;
-    };
+    // const handleMovementButtonUp = () => {
+    //     // Clear the timeout and reset the button state when the button is released
+    //     clearInterval(movementTimeout);
+    //     isMovementButtonPressed = false;
+    // };
 
     return (
         <>
-            <div id="game-content" key="game-content">
-                {/* game canvas renders here */}
-            </div>
             <DialogModal 
                 showDialog={showDialog} 
                 onClose={handleCloseDialog} 
@@ -248,6 +246,9 @@ const Game = () => {
                 currentDialogueIndex={currentDialogueIndex} 
                 onNext={handleNextDialogue} // Add onNext prop
             />
+            <div id="game-content" key="game-content">
+                {/* game canvas renders here */}
+            </div>
             {/* <button onClick={() => handleButtonClick('movement', { direction: 'toggleCameraMode' })}>
                 Toggle Camera Mode
             </button>

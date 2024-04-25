@@ -82,7 +82,8 @@ const SocketComponent = {
                 },
                 body: JSON.stringify({})
             });
-            return response.json();
+            console.log("Reset Server: ", response.ok);
+            return response;
         } catch (error) {
             console.error('Error encountered during POST request:', error);
             throw error;
