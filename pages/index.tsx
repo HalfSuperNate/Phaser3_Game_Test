@@ -28,7 +28,7 @@ const Home: NextPage = () => {
             <Game />
           </div>
           <div id="chatBox" className={styles.chatBox}>
-            Chat Box
+            
           </div>
         </div>
       </main>

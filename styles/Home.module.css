@@ -19,6 +19,7 @@
 .content {
   display: flex;
   width: 100%;
+  max-height: 95vh;
 }
 
 .gameCanvas {
